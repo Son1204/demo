@@ -31,7 +31,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite11.db');
+    final path = join(databasePath, 'flutter_sqflite16.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -455,5 +455,16 @@ class DatabaseService {
     print('(insertUpLevel)'+upLevel.toMap().toString());
   }
 
+
+  Future<List<Bill>> findBillsByEmployeeAndDateTime(int employeeId, DateTime dateTime) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'bill ',
+        where: 'month = ? and year=? and employeeId=? ',
+        whereArgs: [dateTime.month, dateTime.year, employeeId]);
+    return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
+  }
 
 }

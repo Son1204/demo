@@ -89,11 +89,11 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
     return FutureBuilder<List<Employee>>(
       future: _getEmployee(),
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return const Center(
-        //     child: CircularProgressIndicator(),
-        //   );
-        // }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         return Column(
           children: [
             Card(
@@ -307,7 +307,7 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
   bool isActiveBtn2 = false;
   bool isActiveBtn3 = false;
   bool isActiveBtn4 = false;
-  var preDateTime = DateTime.now();
+  var preDateTime = DateTime.parse("01-01-1998");
 
   final DatabaseService _databaseService = DatabaseService();
   late ChiTietKyCong _chiTietKyCong = ChiTietKyCong(

@@ -118,7 +118,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         children: [
                           const Icon(Icons.file_copy_sharp),
                           TextButton(
-                            onPressed: generateInvoice,
+                            onPressed: () {
+                              generateInvoice(widget.employee);
+                            },
                             child: const Text("Bảng lương"),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
