@@ -61,7 +61,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
     _databaseService.insertUpLevel(upLevel);
     widget.employee!.wageOld = widget.employee!.wage;
     widget.employee!.wage = luongMoi;
-    widget.employee!.dateUpLevel = date.toString();
+    widget.employee!.dateUpLevel =  DateFormat('yyyyMMdd').format(date);
     _databaseService.updateEmployee(widget.employee!);
     Log log = Log(
       day: date.day,
