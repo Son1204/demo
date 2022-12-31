@@ -9,6 +9,7 @@ import 'package:test123/models/up_level.dart';
 import '../models/bill.dart';
 import '../models/breed.dart';
 import '../models/dog.dart';
+import '../models/log.dart';
 
 class DatabaseService {
   // Singleton pattern
@@ -31,7 +32,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite16.db');
+    final path = join(databasePath, 'flutter_sqflite19.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -59,7 +60,23 @@ class DatabaseService {
           'chuaThanhToan INTEGER, '
           'tongTienChuaThanhToan INTEGER, '
           'tongThuNhap INTEGER, '
-          'description TEXT'
+          'description TEXT, '
+      'wageOld INTEGER, '
+      'dateUpLevel TEXT'
+      ')',
+    );
+
+    await db.execute(
+      'CREATE TABLE log('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'description TEXT, '
+          'day INTEGER, '
+          'month INTEGER, '
+          'year INTEGER, '
+          'date TEXT, '
+          'dataJson TEXT, '
+          'employeeId INTEGER, '
+          'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
       ')',
     );
 
@@ -378,6 +395,18 @@ class DatabaseService {
     return ChiTietKyCong.fromMap(maps[0]);
   }
 
+  Future<List<ChiTietKyCong>> findChiTietKyCongsByEmployeeIdAndDateTime(int employeeId, DateTime dateTime) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'employee em inner join kycong kc on em.id=kc.employeeId inner join chitietkycong ct on kc.id=ct.kyCongId ',
+        where: 'ct.day >= ? and kc.month = ? and kc.year=? and em.id=? ',
+        whereArgs: [dateTime.day, dateTime.month, dateTime.year, employeeId]);
+
+    return List.generate(maps.length, (index) => ChiTietKyCong.fromMap(maps[index]));
+  }
+
   Future<List<ChiTietKyCong>> findChiTietKyCongByDateTime(DateTime dateTime) async {
     final db = await _databaseService.database;
     final List<Map<String, dynamic>> maps = await db.query(
@@ -465,6 +494,23 @@ class DatabaseService {
         where: 'month = ? and year=? and employeeId=? ',
         whereArgs: [dateTime.month, dateTime.year, employeeId]);
     return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
+  }
+
+  Future<void> insertLog(Log log) async {
+
+    // Get a reference to the database.
+    final db = await _databaseService.database;
+
+    // Insert the Breed into the correct table. You might also specify the
+    // `conflictAlgorithm` to use in case the same breed is inserted twice.
+    //
+    // In this case, replace any previous data.
+    print(log);
+    await db.insert(
+      'log',
+      log.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
 }

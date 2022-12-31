@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:test123/models/log.dart';
 import 'package:test123/models/up_level.dart';
 import '../models/employee.dart';
 import '../services/database_service.dart';
@@ -21,6 +24,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
+
   String get _currency =>
       NumberFormat.compactSimpleCurrency(locale: 'vi').currencySymbol;
 
@@ -55,7 +59,36 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       year: date.year,
     );
     _databaseService.insertUpLevel(upLevel);
+    widget.employee!.wageOld = widget.employee!.wage;
+    widget.employee!.wage = luongMoi;
+    widget.employee!.dateUpLevel = date.toString();
     _databaseService.updateEmployee(widget.employee!);
+    Log log = Log(
+      day: date.day,
+      month: date.month,
+      year: date.year,
+      description: description,
+      date: date.toString(),
+      dataJson: json.encode(upLevel),
+      employeeId: widget.employee!.id!,
+    );
+    _databaseService.insertLog(log);
+    // TODO: sonct cập nhật những ngày công từ ngày tăng lương
+    _databaseService
+        .findChiTietKyCongsByEmployeeIdAndDateTime(widget.employee!.id!, date)
+        .then((chiTietKyCongs) {
+      for (var chiTietKyCong in chiTietKyCongs) {
+        print(chiTietKyCong);
+        if (chiTietKyCong.chamCongNgay[0] == 1) {
+          chiTietKyCong.thuNhapThucTe = luongMoi;
+        } else if (chiTietKyCong.chamCongNgay[1] == 1 ||
+            chiTietKyCong.chamCongNgay[2] == 1) {
+          chiTietKyCong.thuNhapThucTe = (luongMoi / 2).round();
+        }
+        _databaseService.updateChiTietKyCong(chiTietKyCong);
+      }
+    });
+
     Navigator.pop(context);
   }
 
@@ -133,8 +166,8 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
                       DateTime? pickedDate = await showDatePicker(
                         context: context,
                         initialDate: DateTime.now(),
-                        firstDate: DateTime(
-                            2000), //DateTime.now() - not to allow to choose before today.
+                        firstDate: DateTime(2000),
+                        //DateTime.now() - not to allow to choose before today.
                         lastDate: DateTime(2101),
                         errorFormatText: 'Enter valid date',
                         errorInvalidText: 'Enter date in valid range',

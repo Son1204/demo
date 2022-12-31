@@ -3,11 +3,13 @@ import 'dart:convert';
 class Employee {
   final int? id;
   final String name;
-  final int wage;
+  int wage;
+  int wageOld;
   final String description;
   int daThanhToan;
   int chuaThanhToan;
   int tongTienChuaThanhToan;
+  String dateUpLevel;
   final int? tongThuNhap;
   // List<int> chamCongNgay;
 
@@ -17,17 +19,18 @@ class Employee {
   //   chamCongNgay = ngayCong;
   // }
 
-  Employee({
-    this.id,
-    required this.name,
-    this.wage = 0,
-    required this.description,
-    // required this.chamCongNgay,
-    this.daThanhToan = 0,
-    this.chuaThanhToan = 0,
-    this.tongTienChuaThanhToan = 0,
-    this.tongThuNhap,
-  });
+  Employee(
+      {this.id,
+      required this.name,
+      this.wage = 0,
+      required this.description,
+      // required this.chamCongNgay,
+      this.daThanhToan = 0,
+      this.chuaThanhToan = 0,
+      this.tongTienChuaThanhToan = 0,
+      this.tongThuNhap,
+      this.wageOld = 0,
+      this.dateUpLevel = ''});
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
   // columns in the database.
@@ -41,6 +44,8 @@ class Employee {
       'chuaThanhToan': chuaThanhToan,
       'tongTienChuaThanhToan': tongTienChuaThanhToan,
       'daThanhToan': daThanhToan,
+      'wageOld': wageOld,
+      'dateUpLevel': dateUpLevel,
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -56,6 +61,8 @@ class Employee {
       chuaThanhToan: map['chuaThanhToan']?.toInt() ?? 0,
       tongTienChuaThanhToan: map['tongTienChuaThanhToan']?.toInt() ?? 0,
       daThanhToan: map['daThanhToan']?.toInt() ?? 0,
+      wageOld: map['wageOld']?.toInt() ?? 0,
+      dateUpLevel: map['dateUpLevel'],
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }
@@ -69,5 +76,5 @@ class Employee {
   // each breed when using the print statement.
   @override
   String toString() =>
-      'Employee(id: $id, name: $name, wage: $wage, description: $description, chuaThanhToan: $chuaThanhToan, tongTienChuaThanhToan: $tongTienChuaThanhToan)';
+      'Employee(id: $id, name: $name, wage: $wage, wageOld: $wageOld, description: $description, chuaThanhToan: $chuaThanhToan, tongTienChuaThanhToan: $tongTienChuaThanhToan)';
 }
