@@ -3,25 +3,24 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test123/models/bill.dart';
-import '../common_widgets/confirm_builder.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
 import '../services/database_service.dart';
 
-class EmployeeFormPayPage extends StatefulWidget {
-  const EmployeeFormPayPage({Key? key, this.employee}) : super(key: key);
+class EmployeeFormBonusPage extends StatefulWidget {
+  const EmployeeFormBonusPage({Key? key, this.employee}) : super(key: key);
   final Employee? employee;
 
   @override
-  _EmployeeFormPayPage createState() => _EmployeeFormPayPage();
+  _EmployeeFormBonusPage createState() => _EmployeeFormBonusPage();
 }
 
-class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
+class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
   final TextEditingController _descController = TextEditingController();
   TextEditingController dateinput = TextEditingController();
   final TextEditingController _wageController = TextEditingController();
 
-  bool tatToan = false;
+  bool daThanhToan = false;
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
@@ -45,53 +44,49 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
   Future<void> _onSave() async {
     final description = _descController.text;
     final wage = _wageController.text.replaceAll('.', '');
+
     var date = DateTime.now();
     var soTien = int.parse(wage);
-    
-    if (await confirm(context, title: Text('Đồng ý đã thanh toán: '+_formatNumber(soTien.toString())+'đ cho nhân viên: '+widget.employee!.name))) {
 
-      // lưu thanh toán
-      Bill bill = Bill(
-        soTien: soTien,
-        description: description,
-        employeeId: widget.employee!.id!,
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        date: DateFormat('yyyyMMdd').format(date),
-      );
-      _databaseService.insertBill(bill);
+    // lưu thanh toán
+    Bill bill = Bill(
+      soTien: soTien,
+      description: description,
+      employeeId: widget.employee!.id!,
+      day: date.day,
+      month: date.month,
+      year: date.year,
+      date: DateFormat('yyyyMMdd').format(date),
+    );
+    _databaseService.insertBill(bill);
 
-      Log log = Log(
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        description: 'Thanh toán lương',
-        date: DateFormat('yyyyMMdd').format(date),
-        dataJson: json.encode(bill),
-        employeeId: widget.employee!.id!,
-        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
-      );
-      _databaseService.insertLog(log);
+    Log log = Log(
+      day: date.day,
+      month: date.month,
+      year: date.year,
+      description: 'Thanh toán lương',
+      date: DateFormat('yyyyMMdd').format(date),
+      dataJson: json.encode(bill),
+      employeeId: widget.employee!.id!,
+      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+    );
+    _databaseService.insertLog(log);
 
-      // trừ thông tin chưa thanh toán, thứ tự trừ tháng trước sau đó đến tổng
-      widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan - soTien;
+    // trừ thông tin chưa thanh toán, thứ tự trừ tháng trước sau đó đến tổng
+    widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan - soTien;
 
-      // cập nhật đã thanh toán
-      widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+    // cập nhật đã thanh toán
+    widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
 
-      _databaseService.updateEmployee(widget.employee!);
-      Navigator.pop(context);
-      return print('pressedOK');
-    }
-    return print('pressedCancel');
+    _databaseService.updateEmployee(widget.employee!);
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
           appBar: AppBar(
-            title: Text('Thanh toán lương: ' + widget.employee!.name),
+            title: Text('Thưởng/Phụ cấp: ' + widget.employee!.name),
             centerTitle: true,
           ),
           body: SingleChildScrollView(
@@ -102,34 +97,12 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const SizedBox(height: 16.0),
-                  Row(
-                    children: [
-                      const Text(
-                        'Số tiền chưa thanh toán: ',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        _formatNumber(
-                                widget.employee!.chuaThanhToan.toString()) +
-                            ' đ',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.deepOrangeAccent,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16.0),
                   TextField(
                     controller: _wageController,
                     decoration: InputDecoration(
                       prefixText: _currency,
                       hintText: '0VNĐ',
-                      label: const Text('Số tiền: '),
+                      label: const Text('Số tiền thưởng/phụ cấp: '),
                     ),
                     keyboardType: TextInputType.number,
                     onChanged: (string) {
@@ -155,7 +128,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                         dateinput, //editing controller of this TextField
                     decoration: const InputDecoration(
                         icon: Icon(Icons.calendar_today), //icon of text field
-                        labelText: "Ngày thanh toán" //label text of field
+                        labelText: "Ngày thưởng/phụ cấp" //label text of field
                         ),
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
@@ -188,20 +161,20 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Checkbox(
-                        value: tatToan,
+                        value: daThanhToan,
                         onChanged: (value) {
                           setState(() {
-                            if (!tatToan) {
+                            if (!daThanhToan) {
                               _wageController.text = _formatNumber(
                                   widget.employee!.chuaThanhToan.toString());
                             } else {
                               _wageController.text = _formatNumber('0');
                             }
-                            tatToan = value!;
+                            daThanhToan = value!;
                           });
                         },
                       ),
-                      const Text('Tất toán'),
+                      const Text('Đã đưa tiền'),
                       const SizedBox(
                         width: 20,
                       ),
@@ -212,7 +185,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                     child: ElevatedButton(
                       onPressed: _onSave,
                       child: const Text(
-                        'Lưu thành toán',
+                        'Lưu lại',
                         style: TextStyle(
                           fontSize: 16.0,
                         ),
