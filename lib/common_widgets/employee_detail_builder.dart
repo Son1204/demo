@@ -5,6 +5,8 @@ import 'package:test123/models/employee.dart';
 import 'package:test123/pages/employee_form_pay_page.dart';
 
 import '../pages/employee_form_up_level_form.dart';
+import '../pages/log_page.dart';
+import '../services/database_service.dart';
 
 class EmployeeDetailBuilder extends StatefulWidget {
   const EmployeeDetailBuilder({Key? key, required this.employee})
@@ -16,6 +18,16 @@ class EmployeeDetailBuilder extends StatefulWidget {
 }
 
 class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
+
+  final DatabaseService _databaseService = DatabaseService();
+
+  Future<void> _onDeleteEmployee() async {
+
+    _databaseService.deleteEmployee(widget.employee.id!);
+
+    Navigator.pop(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,7 +89,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Công"),
+                            child: const Text("Ngày công"),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -149,7 +161,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Tăng lương"),
+                            child: const Text("Điều chỉnh lương"),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -304,8 +316,22 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     ),
                   ),
                 ),
+                const SizedBox(
+                  height: 16,
+                ),
                 GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(
+                      MaterialPageRoute(
+                        builder: (_) => LogPage(
+                          employee: widget.employee,
+                        ),
+                        fullscreenDialog: true,
+                      ),
+                    )
+                        .then((_) => setState(() {}));
+                  },
                   child: SizedBox(
                     width: double.infinity,
                     child: Card(
@@ -337,6 +363,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   Text('Hôm nay:'),
                                 ],
                               ),
+                              const SizedBox(
+                                width: 16,
+                              ),
                               Text("Vừa được tăng lương"),
                             ],
                           ),
@@ -346,7 +375,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _onDeleteEmployee();
+                  },
                   child: Container(
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.blue.shade100),
@@ -359,7 +390,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                       horizontal: 15,
                     ),
                     child: const Text(
-                      'Công',
+                      'Nghỉ việc',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 13.0,

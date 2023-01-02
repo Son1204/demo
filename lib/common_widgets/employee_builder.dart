@@ -30,65 +30,83 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Employee>>(
-      future: _getEmployee(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-        return Column(
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.of(context)
-                    .push(
-                      MaterialPageRoute(
-                        builder: (context) => const EmployeeFormPage(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Danh sách nhân viên'),
+        centerTitle: true,
+      ),
+      body: FutureBuilder<List<Employee>>(
+        future: _getEmployee(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Padding(
+              //   padding: const EdgeInsets.only(left: 10, top: 20),
+              //   child: Text(
+              //     "Danh sách nhân viên",
+              //     style: TextStyle(
+              //       fontSize: 24,
+              //       color: Colors.blue,
+              //       fontWeight: FontWeight.bold,
+              //     ),
+              //   ),
+              // ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context)
+                      .push(
+                        MaterialPageRoute(
+                          builder: (context) => const EmployeeFormPage(),
+                        ),
+                      )
+                      .then((context) => setState(() {}));
+                },
+                child: Container(
+                  height: 45.0,
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    color: Colors.grey[200],
+                  ),
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      FaIcon(FontAwesomeIcons.userPlus),
+                      SizedBox(
+                        width: 5,
                       ),
-                    )
-                    .then((context) => setState(() {}));
-              },
-              child: Container(
-                height: 45.0,
-                margin:
-                    const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  color: Colors.grey[200],
-                ),
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    FaIcon(FontAwesomeIcons.userPlus),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text("Thêm nhân viên"),
-                  ],
+                      Text("Thêm nhân viên"),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                child: ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    final employee = snapshot.data![index];
-                    return _buildEmployeeCard(employee, context);
-                  },
+              const SizedBox(
+                height: 16,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      final employee = snapshot.data![index];
+                      return _buildEmployeeCard(employee, context);
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
-      },
+            ],
+          );
+        },
+      ),
     );
   }
 

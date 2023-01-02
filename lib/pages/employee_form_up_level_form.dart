@@ -17,7 +17,7 @@ class EmployeeFormUpLevelPage extends StatefulWidget {
 
 class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
   final TextEditingController _descController = TextEditingController();
-  TextEditingController dateinput = TextEditingController();
+  final TextEditingController _dateController = TextEditingController();
   final TextEditingController _wageNewController = TextEditingController();
 
   bool tatToan = false;
@@ -38,15 +38,19 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       _wageNewController.text = _formatNumber('0');
       var date = DateTime.now();
       var formattedDate = "${date.day}-${date.month}-${date.year}";
-      dateinput.text = formattedDate;
+      _dateController.text = formattedDate;
     }
   }
 
   Future<void> _onSave() async {
     final description = _descController.text;
     final wage = _wageNewController.text.replaceAll('.', '');
+    final dateChoose = _dateController.text.split('-');
 
-    var date = DateTime.now();
+    // DateTime(1998, 12, 04)
+    // var day = dateChoose[0];
+    print(dateChoose);
+    var date = DateTime(int.parse(dateChoose[2]), int.parse(dateChoose[1]), int.parse(dateChoose[0]));
     var luongMoi = int.parse(wage);
 
     UpLevel upLevel = UpLevel(
@@ -57,25 +61,27 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       day: date.day,
       month: date.month,
       year: date.year,
+      date: DateFormat('yyyyMMdd').format(date),
     );
     _databaseService.insertUpLevel(upLevel);
     widget.employee!.wageOld = widget.employee!.wage;
     widget.employee!.wage = luongMoi;
-    widget.employee!.dateUpLevel =  DateFormat('yyyyMMdd').format(date);
+    widget.employee!.dateUpLevel = DateFormat('yyyyMMdd').format(date);
     _databaseService.updateEmployee(widget.employee!);
     Log log = Log(
       day: date.day,
       month: date.month,
       year: date.year,
-      description: description,
-      date: date.toString(),
+      description: 'Điều chỉnh lương',
+      date: DateFormat('yyyyMMdd').format(DateTime.now()),
       dataJson: json.encode(upLevel),
       employeeId: widget.employee!.id!,
+      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
     );
     _databaseService.insertLog(log);
     // TODO: sonct cập nhật những ngày công từ ngày tăng lương
     _databaseService
-        .findChiTietKyCongsByEmployeeIdAndDateTime(widget.employee!.id!, date)
+        .findChiTietKyCongsByEmployeeIdAndDateTime(widget.employee!.id!, DateFormat('yyyyMMdd').format(date))
         .then((chiTietKyCongs) {
       for (var chiTietKyCong in chiTietKyCongs) {
         print(chiTietKyCong);
@@ -94,11 +100,9 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Material(
-        child: Scaffold(
+    return Scaffold(
           appBar: AppBar(
-            title: Text('Tăng lương: ' + widget.employee!.name),
+            title: Text('Điều chỉnh lương: ' + widget.employee!.name),
             centerTitle: true,
           ),
           body: SingleChildScrollView(
@@ -157,7 +161,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
                   const SizedBox(height: 16.0),
                   TextField(
                     controller:
-                        dateinput, //editing controller of this TextField
+                        _dateController, //editing controller of this TextField
                     decoration: const InputDecoration(
                       icon: Icon(Icons.calendar_today), //icon of text field
                       labelText: "Ngày tăng lương", //label text of field
@@ -177,13 +181,13 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
                         String formattedDate =
                             DateFormat('dd-MM-yyyy').format(pickedDate);
                         setState(() {
-                          dateinput.text = formattedDate;
+                          _dateController.text = formattedDate;
                         });
                       } else {
                         var date = DateTime.now();
                         var formattedDate =
                             "${date.day}-${date.month}-${date.year}";
-                        dateinput.text = formattedDate;
+                        _dateController.text = formattedDate;
                         print("Date is not selected");
                       }
                     },
@@ -204,8 +208,6 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }

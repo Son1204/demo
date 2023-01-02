@@ -2,7 +2,6 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:test123/models/chi_tiet_ky_cong.dart';
 import 'package:test123/models/employee.dart';
-import 'package:test123/models/employee_enrich.dart';
 import 'package:test123/models/ky_cong.dart';
 import 'package:test123/models/up_level.dart';
 
@@ -32,7 +31,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite19.db');
+    final path = join(databasePath, 'flutter_sqflite31.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -69,11 +68,12 @@ class DatabaseService {
     await db.execute(
       'CREATE TABLE log('
           'id INTEGER PRIMARY KEY AUTOINCREMENT, '
-          'description TEXT, '
+          'description1 TEXT, '
           'day INTEGER, '
           'month INTEGER, '
           'year INTEGER, '
           'date TEXT, '
+          'dateTime TEXT, '
           'dataJson TEXT, '
           'employeeId INTEGER, '
           'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
@@ -90,6 +90,7 @@ class DatabaseService {
           'year INTEGER, '
           'employeeId INTEGER, '
           'description TEXT, '
+          'date TEXT, '
           'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
           ')',
     );
@@ -134,6 +135,7 @@ class DatabaseService {
           'title TEXT, '
           'kyCongId INTEGER,'
           'day INTEGER,'
+          'date TEXT, '
           'chamCongNgay TEXT, '
           'thuNhapThucTe INTEGER, '
           'FOREIGN KEY (kyCongId) REFERENCES kycong(id) ON DELETE SET NULL'
@@ -245,15 +247,15 @@ class DatabaseService {
 
 
   // Define a function that inserts breeds into the database
-  Future<void> insertEmployee(Employee employee) async {
+  Future<int> insertEmployee(Employee employee) async {
     final db = await _databaseService.database;
 
-    await db.insert(
+    print('(insertEmployee)'+employee.toMap().toString());
+    return await db.insert(
       'employee',
       employee.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
-    print('(insertEmployee)'+employee.toMap().toString());
   }
 
   Future<List<Employee>> findAllEmployees() async {
@@ -395,14 +397,14 @@ class DatabaseService {
     return ChiTietKyCong.fromMap(maps[0]);
   }
 
-  Future<List<ChiTietKyCong>> findChiTietKyCongsByEmployeeIdAndDateTime(int employeeId, DateTime dateTime) async {
+  Future<List<ChiTietKyCong>> findChiTietKyCongsByEmployeeIdAndDateTime(int employeeId, String date) async {
     final db = await _databaseService.database;
 
     final List<Map<String, dynamic>> maps =
     await db.query(
         'employee em inner join kycong kc on em.id=kc.employeeId inner join chitietkycong ct on kc.id=ct.kyCongId ',
-        where: 'ct.day >= ? and kc.month = ? and kc.year=? and em.id=? ',
-        whereArgs: [dateTime.day, dateTime.month, dateTime.year, employeeId]);
+        where: 'ct.date >= ? and em.id=? ',
+        whereArgs: [date, employeeId]);
 
     return List.generate(maps.length, (index) => ChiTietKyCong.fromMap(maps[index]));
   }
@@ -446,6 +448,7 @@ class DatabaseService {
         await db.query(
         'employee em inner join kycong kc on em.id=kc.employeeId inner join chitietkycong ct on kc.id=ct.kyCongId ',
         where: 'kc.month = ? and kc.year=? and em.id=? ',
+        orderBy: 'ct.day',
         whereArgs: [dateTime.month, dateTime.year, employeeId]);
     return List.generate(maps.length, (index) => ChiTietKyCong.fromMap(maps[index]));
   }
@@ -511,6 +514,21 @@ class DatabaseService {
       log.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<List<Log>> findLogsByEmployee(int employeeId, int page) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+        await db.query(
+        'log lg inner join employee em on lg.employeeId = em.id ',
+        where: 'lg.employeeId=? ',
+        offset: page,
+        limit: 10,
+        whereArgs: [employeeId],
+        orderBy: 'date DESC, lg.id DESC '
+        );
+    return List.generate(maps.length, (index) => Log.fromMap(maps[index]));
   }
 
 }

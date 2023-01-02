@@ -9,7 +9,7 @@ class Employee {
   int daThanhToan;
   int chuaThanhToan;
   int tongTienChuaThanhToan;
-  String dateUpLevel;
+  String dateUpLevel; // su dung filter
   final int? tongThuNhap;
   // List<int> chamCongNgay;
 
@@ -30,7 +30,8 @@ class Employee {
       this.tongTienChuaThanhToan = 0,
       this.tongThuNhap,
       this.wageOld = 0,
-      this.dateUpLevel = ''});
+      this.dateUpLevel = '',
+      });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
   // columns in the database.

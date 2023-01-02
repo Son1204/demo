@@ -8,6 +8,7 @@ class UpLevel {
   final int month;
   final int year;
   final int employeeId;
+  final String date;
   final String description;
   // List<int> chamCongNgay;
 
@@ -22,7 +23,8 @@ class UpLevel {
     required this.wageOld,
     required this.wageNew,
     required this.description,
-    required this.employeeId, required this.day, required this.month, required this.year
+    required this.employeeId, required this.day, required this.month, required this.year,
+    required this.date,
   });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
@@ -37,6 +39,7 @@ class UpLevel {
       'year': year,
       'employeeId': employeeId,
       'wageOld': wageOld,
+      'date': date,
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -52,6 +55,7 @@ class UpLevel {
       year: map['year']?.toInt() ?? 0,
       employeeId: map['employeeId']?.toInt() ?? 0,
       wageNew: map['wageNew']?.toInt() ?? 0,
+      date: map['date'],
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }

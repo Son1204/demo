@@ -47,18 +47,18 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
   void initState() {
     super.initState();
     print("INIT STATE: " + widget.dateTime.toString());
-    print(isSameDay(widget.dateTime));
+    // print(isSameDay(widget.dateTime));
   }
 
-  bool isSameDay(DateTime dateTime) {
-    var dateNow = DateTime.now();
-    if (dateNow.day == dateTime.day &&
-        dateNow.month == dateTime.month &&
-        dateNow.year == dateTime.year) {
-      return true;
-    }
-    return false;
-  }
+  // bool isSameDay(DateTime dateTime) {
+  //   var dateNow = DateTime.now();
+  //   if (dateNow.day == dateTime.day &&
+  //       dateNow.month == dateTime.month &&
+  //       dateNow.year == dateTime.year) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -88,12 +88,18 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
     print('_EmployeeInDayBuilder');
     return FutureBuilder<List<Employee>>(
       future: _getEmployee(),
+      initialData: const [],
       builder: (context, snapshot) {
         // if (snapshot.connectionState == ConnectionState.waiting) {
         //   return const Center(
         //     child: CircularProgressIndicator(),
         //   );
         // }
+        if (snapshot.data!.isEmpty) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         return Column(
           children: [
             Card(
@@ -313,6 +319,7 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
   late ChiTietKyCong _chiTietKyCong = ChiTietKyCong(
     title: "title",
     kyCongId: 0,
+    date: DateFormat('yyyyMMdd').format(widget.dateTime),
     day: widget.dateTime.day,
     chamCongNgay: [0, 0, 0, 0],
     thuNhapThucTe: 0,
@@ -340,6 +347,7 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
           day: widget.dateTime.day,
           chamCongNgay: [0, 0, 0, 0],
           thuNhapThucTe: 0,
+          date: DateFormat('yyyyMMdd').format(widget.dateTime),
         ),
       );
     }
@@ -363,6 +371,7 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
           day: widget.dateTime.day,
           chamCongNgay: [0, 0, 0, 0],
           thuNhapThucTe: 0,
+          date: DateFormat('yyyyMMdd').format(widget.dateTime),
         ),
       );
     }
@@ -404,6 +413,7 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
 
       print("BUILD _BuildEmployeeCard, " + preDateTime.toString());
       preDateTime = widget.dateTime;
+      print("BUILD _BuildEmployeeCard, " + widget.dateTime.toString());
     }
 
     print('EMPLOYEE_ID: ' + widget.employee.id.toString());
@@ -469,7 +479,11 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                     child: Text(
                       "Lương/Ngày: " +
                           _formatNumber(
-                            widget.employee.wage.toString(),
+                            int.parse(widget.employee.dateUpLevel) <=
+                                    int.parse(DateFormat('yyyyMMdd')
+                                        .format(widget.dateTime))
+                                ? widget.employee.wage.toString()
+                                : widget.employee.wageOld.toString(),
                           ) +
                           ' đ',
                       style: const TextStyle(fontSize: 16),
@@ -510,7 +524,14 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                           'CẢ NGÀY: ' + _chiTietKyCong.chamCongNgay.toString());
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
                       _chiTietKyCong.thuNhapThucTe = 0;
-                      _chiTietKyCong.thuNhapThucTe = widget.employee.wage;
+
+                      if (int.parse(widget.employee.dateUpLevel) >=
+                          int.parse(
+                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                        _chiTietKyCong.thuNhapThucTe = widget.employee.wage;
+                      } else {
+                        _chiTietKyCong.thuNhapThucTe = widget.employee.wageOld;
+                      }
 
                       if (preThuNhapThucTe < _chiTietKyCong.thuNhapThucTe) {
                         var thuNhapCongThem =
@@ -562,8 +583,16 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
 
                       _chiTietKyCong.thuNhapThucTe = 0;
-                      _chiTietKyCong.thuNhapThucTe =
-                          (widget.employee.wage / 2).round();
+
+                      if (int.parse(widget.employee.dateUpLevel) >=
+                          int.parse(
+                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                        _chiTietKyCong.thuNhapThucTe =
+                            (widget.employee.wage / 2).round();
+                      } else {
+                        _chiTietKyCong.thuNhapThucTe =
+                            (widget.employee.wageOld / 2).round();
+                      }
 
                       if (preThuNhapThucTe < _chiTietKyCong.thuNhapThucTe) {
                         var thuNhapCongThem =
@@ -619,8 +648,15 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
 
                       _chiTietKyCong.thuNhapThucTe = 0;
-                      _chiTietKyCong.thuNhapThucTe =
-                          (widget.employee.wage / 2).round();
+                      if (int.parse(widget.employee.dateUpLevel) >=
+                          int.parse(
+                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                        _chiTietKyCong.thuNhapThucTe =
+                            (widget.employee.wage / 2).round();
+                      } else {
+                        _chiTietKyCong.thuNhapThucTe =
+                            (widget.employee.wageOld / 2).round();
+                      }
 
                       if (preThuNhapThucTe < _chiTietKyCong.thuNhapThucTe) {
                         var thuNhapCongThem =

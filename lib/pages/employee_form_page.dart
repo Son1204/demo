@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/employee.dart';
+import '../models/log.dart';
 import '../services/database_service.dart';
 
 class EmployeeFormPage extends StatefulWidget {
@@ -15,8 +18,10 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
   static const _locale = 'vi';
-  String _formatNumber(String s) => NumberFormat.decimalPattern(_locale).format(int.parse(s));
-  String get _currency => NumberFormat.compactSimpleCurrency(locale: _locale).currencySymbol;
+  String _formatNumber(String s) =>
+      NumberFormat.decimalPattern(_locale).format(int.parse(s));
+  String get _currency =>
+      NumberFormat.compactSimpleCurrency(locale: _locale).currencySymbol;
   final TextEditingController _wageController = TextEditingController();
 
   @override
@@ -37,12 +42,40 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
     final wage = _wageController.text.replaceAll('.', '');
     // Add save code here
     widget.employee == null
-        ?
-    await _databaseService
-        .insertEmployee(Employee(name: name, description: description, wage: int.parse(wage)))
-    : await _databaseService
-        .updateEmployee(Employee(id: widget.employee!.id,
-        name: name, description: description, wage: int.parse(wage)));
+        ? await _databaseService.insertEmployee(Employee(
+            name: name,
+            description: description,
+            wage: int.parse(wage),
+            wageOld: int.parse(wage),
+            dateUpLevel: DateFormat('yyyyMMdd').format(DateTime.now()),
+          )).then((employeeId) {
+      var date = DateTime.now();
+
+      Log log = Log(
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        description: 'Thêm nhân viên',
+        date: DateFormat('yyyyMMdd').format(date),
+        dataJson: json.encode(Employee(
+          name: name,
+          description: description,
+          wage: int.parse(wage),
+          wageOld: int.parse(wage),
+          dateUpLevel: DateFormat('yyyyMMdd').format(DateTime.now()),
+        ),),
+        employeeId: employeeId,
+        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+      );
+      _databaseService.insertLog(log);
+    })
+        : await _databaseService.updateEmployee(Employee(
+            id: widget.employee!.id,
+            name: name,
+            description: description,
+            wage: int.parse(wage),
+            dateUpLevel: DateFormat('yyyyMMdd').format(DateTime.now()),
+          ));
 
     Navigator.pop(context);
   }
@@ -51,7 +84,9 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: widget.employee == null ? const Text('Thêm nhân viên') : const Text('Cập nhật nhân viên'),
+        title: widget.employee == null
+            ? const Text('Thêm nhân viên')
+            : const Text('Cập nhật nhân viên'),
         centerTitle: true,
       ),
       body: Padding(
@@ -62,27 +97,26 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Họ và Tên',
-                label: Text('Họ và Tên')
-              ),
+                  border: OutlineInputBorder(),
+                  hintText: 'Họ và Tên',
+                  label: Text('Họ và Tên')),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: _descController,
               maxLines: 3,
               decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'Ghi chú',
-                label: Text('Ghi chú')
-              ),
+                  border: OutlineInputBorder(),
+                  hintText: 'Ghi chú',
+                  label: Text('Ghi chú')),
             ),
             const SizedBox(height: 16.0),
             TextField(
               controller: _wageController,
-              decoration: InputDecoration(prefixText: _currency,
+              decoration: InputDecoration(
+                prefixText: _currency,
                 hintText: '0VNĐ',
-                  label: const Text('Lương/Ngày'),
+                label: const Text('Lương/Ngày'),
               ),
               keyboardType: TextInputType.number,
               onChanged: (string) {

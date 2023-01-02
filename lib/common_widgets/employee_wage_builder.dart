@@ -39,6 +39,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
       ),
       body: FutureBuilder<List<ChiTietKyCong>>(
           future: _getChiTietKyCongByEmployeeAndDate(),
+          initialData: const [],
           builder: (context, snapshot) {
             soNVLamCaNgay = 0;
             soNVLamBuoiSang = 0;
@@ -65,6 +66,11 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
               // Tinh tong so tien can tra theo ngay
               totalWage += element.thuNhapThucTe;
             });
+            if (snapshot.data!.isEmpty) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
             return Container(
               margin: const EdgeInsets.only(
                 top: 20,
@@ -78,9 +84,9 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
                     ),
                     child: Row(
                       children: [
-                        const Text(
-                          'Lương tháng 12: ',
-                          style: TextStyle(
+                        Text(
+                          'Lương tháng '+DateTime.now().month.toString()+': ',
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -133,9 +139,9 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
                     ),
                     child: Row(
                       children: [
-                        const Text(
-                          'Tổng số công trong tháng 12: ',
-                          style: TextStyle(
+                        Text(
+                          'Tổng số công trong tháng '+DateTime.now().month.toString()+': ',
+                          style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
                           ),
@@ -278,9 +284,11 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
             children: [
               Text(
                 'Ngày ' +
-                    widget.chiTietKyCong.day.toString() +
-                    '/' +
-                    DateTime.now().month.toString() +
+                    DateFormat('dd/MM').format(DateTime(
+                      DateTime.now().year,
+                      DateTime.now().month,
+                      widget.chiTietKyCong.day,
+                    )) +
                     ': ',
                 style: const TextStyle(
                   fontSize: 16,

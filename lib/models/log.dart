@@ -6,8 +6,10 @@ class Log {
   final int day;
   final int month;
   final int year;
-  final String date;
+  final String date; // dung de filter
+  final String dateTime; // thoi gian log
   final String dataJson;
+  String employeeName;
   int employeeId;
   // List<int> chamCongNgay;
 
@@ -26,6 +28,8 @@ class Log {
     required this.date,
     required this.dataJson,
     required this.employeeId,
+    required this.dateTime,
+    this.employeeName = ''
   });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
@@ -35,11 +39,12 @@ class Log {
       'id': id,
       'day': day,
       'month': month,
-      'description': description,
+      'description1': description,
       'year': year,
       'date': date,
       'dataJson': dataJson,
       'employeeId': employeeId,
+      'dateTime': dateTime,
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -50,11 +55,13 @@ class Log {
       id: map['id']?.toInt() ?? 0,
       day: map['day'] ?? '',
       month: map['month']?.toInt() ?? 0,
-      description: map['description'] ?? '',
+      description: map['description1'] ?? '',
       year: map['year']?.toInt() ?? 0,
       date: map['date'],
       dataJson: json.decode(map['dataJson']),
       employeeId: map['employeeId']?.toInt() ?? 0,
+      dateTime: map['dateTime'],
+      employeeName: map['name'] ?? ''
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }
@@ -68,5 +75,5 @@ class Log {
   // each breed when using the print statement.
   @override
   String toString() =>
-      'Log(id: $id, date: $date, employeeId: $employeeId, description: $description, data: $dataJson)';
+      'Log(id: $id, date: $date,dateView: $dateTime, employeeId: $employeeId, description: $description, data: $dataJson)';
 }

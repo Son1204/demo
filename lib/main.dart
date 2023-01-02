@@ -1,17 +1,20 @@
 // import 'dart:ffi';
 
+import 'dart:math';
+
+import 'package:calendar_agenda/calendar_agenda.dart';
+import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:gsheets/gsheets.dart';
-import 'package:test123/common_widgets/employee_builder.dart';
-import 'package:test123/pages/employee_form_page.dart';
+import 'package:loadmore/loadmore.dart';
 
+import 'common_widgets/employee_builder.dart';
 import 'common_widgets/employee_in_day_builder.dart';
 import 'common_widgets/report_builder.dart';
-import 'pages/employee_page.dart';
 import 'pages/home_page.dart';
 import 'package:cron/cron.dart';
 
@@ -87,11 +90,79 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.blue,
       ),
       title: 'Flutter Clean Calendar Demo',
-      home: WillPopScope(
-        child: MyNevBar(),
-        onWillPop: _doNastyStuffsBeforeExit,
+      home: MyNevBar(),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({ Key? key, required this.title}) : super(key: key);
+  final String title;
+
+  @override
+  _MyHomePageState createState() => new _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int get count => list.length;
+
+  List<int> list = [];
+
+  void initState() {
+    super.initState();
+    // list.addAll(List.generate(30, (v) => v));
+  }
+
+  void load() {
+    print("load");
+    setState(() {
+      list.addAll(List.generate(15, (v) => v));
+      print("data count = ${list.length}");
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text(widget.title),
+      ),
+      body: Container(
+        child: RefreshIndicator(
+          child: LoadMore(
+            isFinish: count >= 60,
+            onLoadMore: _loadMore,
+            child: ListView.builder(
+              itemBuilder: (BuildContext context, int index) {
+                return Container(
+                  child: Text(list[index].toString()),
+                  height: 40.0,
+                  alignment: Alignment.center,
+                );
+              },
+              itemCount: count,
+            ),
+            whenEmptyLoad: false,
+            delegate: DefaultLoadMoreDelegate(),
+            textBuilder: DefaultLoadMoreTextBuilder.english,
+          ),
+          onRefresh: _refresh,
+        ),
       ),
     );
+  }
+
+  Future<bool> _loadMore() async {
+    print("onLoadMore");
+    await Future.delayed(Duration(seconds: 0, milliseconds: 2000));
+    load();
+    return true;
+  }
+
+  Future<void> _refresh() async {
+    await Future.delayed(Duration(seconds: 0, milliseconds: 2000));
+    list.clear();
+    load();
   }
 }
 
@@ -107,49 +178,56 @@ class _MyNevBarState extends State<MyNevBar> {
 
   List listOfColors = [
     const CalendarScreen(),
-    const EmployeePage(),
+    const EmployeeBuilder(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Chấm công"),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () => {},
-          ),
-        ],
-      ),
-      body: listOfColors[currentIndex],
-      bottomNavigationBar: BottomNavyBar(
-        selectedIndex: currentIndex,
-        onItemSelected: (index) {
-          setState(() {
+      // appBar: AppBar(
+      //   title: const Text("Chấm công"),
+      //   actions: <Widget>[
+      //     IconButton(
+      //       icon: const Icon(Icons.notifications),
+      //       onPressed: () => {},
+      //     ),
+      //   ],
+      //   elevation: 0,
+      // ),
+      body: SafeArea(child: listOfColors[currentIndex],),
+      bottomNavigationBar: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: DotNavigationBar(
+          margin: EdgeInsets.only(left: 10, right: 10),
+          currentIndex: currentIndex,
+          dotIndicatorColor: Colors.white,
+          unselectedItemColor: Colors.grey[300],
+          // enableFloatingNavBar: false,
+          onTap: (index) {
             currentIndex = index;
-          });
-        },
-        items: <BottomNavyBarItem>[
-          BottomNavyBarItem(
-            icon: Icon(Icons.home),
-            title: Text('Chấm công'),
-          ),
-          BottomNavyBarItem(
-            icon: Icon(Icons.circle_notifications),
-            title: Text('Tính lương'),
-          ),
-          BottomNavyBarItem(
-            icon: Icon(Icons.message),
-            title: Text('Tính lương'),
-          ),
-          BottomNavyBarItem(
-            icon: Icon(Icons.person),
-            title: Text('Tính lương'),
-            activeColor: Colors.blueAccent,
-            inactiveColor: Colors.lightGreenAccent,
-          ),
-        ],
+            setState(() {
+
+            });
+          },
+          items: [
+            /// Home
+            DotNavigationBarItem(
+              icon: Icon(Icons.home),
+              selectedColor: Color(0xff73544C),
+            ),
+
+            DotNavigationBarItem(
+              icon: Icon(Icons.person),
+              selectedColor: Color(0xff73544C),
+            ),
+
+            DotNavigationBarItem(
+              icon: Icon(Icons.file_copy),
+              selectedColor: Color(0xff73544C),
+            ),
+
+          ],
+        ),
       ),
     );
   }
@@ -178,7 +256,15 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  late DateTime selectedDateTime = DateTime.now();
+  CalendarAgendaController _calendarAgendaControllerNotAppBar =
+      CalendarAgendaController();
+  late DateTime _selectedDateNotAppBBar;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedDateNotAppBBar = DateTime.now();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,82 +272,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
       body: SafeArea(
           child: Column(
         children: [
-          Flexible(
-            flex: 1,
-            fit: FlexFit.tight,
-            child: Calendar(
-              startOnMonday: true,
-              weekDays: const [
-                'Thứ 2',
-                'Thứ 3',
-                'Thứ 4',
-                'Thứ 5',
-                'Thứ 6',
-                'Thứ 7',
-                'CN'
-              ],
-              onDateSelected: (DateTime day) {
-                selectedDateTime = day;
-                setState(() {});
-              },
-              // eventsList: _eventList,
-              isExpandable: false,
-              eventColor: Colors.transparent,
-              eventDoneColor: Colors.pink,
-              selectedColor: Colors.pink,
-              selectedTodayColor: Colors.blue,
-              todayColor: Colors.blue,
-              locale: 'vi_VN',
-              todayButtonText: 'Hôm nay',
-              // allDayEventText: 'Ganztägig',
-              // multiDayEndText: 'Ende',
-              // isExpanded: true,
-              expandableDateFormat: 'EEEE, dd/MM/yyyy',
-              datePickerType: DatePickerType.date,
-              dayOfWeekStyle: const TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15),
-              // bottomBarTextStyle: ,
+          CalendarAgenda(
+            controller: _calendarAgendaControllerNotAppBar,
+            selectedDayPosition: SelectedDayPosition.center,
+            // fullCalendar: false,
+            leading: SizedBox(
+              child: TextButton(
+                onPressed: () {
+                  _calendarAgendaControllerNotAppBar.goToDay(DateTime.now());
+                },
+                child: const Text(
+                  "Hôm nay",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
+            locale: 'vi',
+            weekDay: WeekDay.long,
+            fullCalendarDay: WeekDay.short,
+            selectedDateColor: Colors.blue.shade900,
+            initialDate: DateTime.now(),
+            firstDate: DateTime.now().subtract(Duration(days: 1000)),
+            lastDate: DateTime.now().add(Duration(days: 1200)),
+            onDateSelected: (date) {
+              setState(() {
+                _selectedDateNotAppBBar = date;
+              });
+            },
           ),
           Flexible(
             child: EmployeeInDayBuilder(
-              dateTime: selectedDateTime,
+              dateTime: _selectedDateNotAppBBar,
             ),
             flex: 3,
           )
         ],
       )),
-    );
-  }
-}
-
-class TimeKeeping extends StatefulWidget {
-  const TimeKeeping({Key? key, required this.selectedDate}) : super(key: key);
-  final DateTime selectedDate;
-
-  @override
-  State<TimeKeeping> createState() => _TimeKeepingState();
-}
-
-class _TimeKeepingState extends State<TimeKeeping> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: EmployeeInDayBuilder(
-                dateTime: widget.selectedDate,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

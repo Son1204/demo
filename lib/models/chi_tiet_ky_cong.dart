@@ -5,6 +5,7 @@ class ChiTietKyCong {
   final String title;
   final int kyCongId;
   final int day;
+  final String date;
   int thuNhapThucTe;
   List<int> chamCongNgay;
   // final String? d1;
@@ -48,7 +49,8 @@ class ChiTietKyCong {
     required this.title,
     required this.kyCongId,
   required this.day,
-  required this.chamCongNgay,
+    required this.date,
+    required this.chamCongNgay,
     required this.thuNhapThucTe
     // this.wageOfMonth = 0,
     // this.d1,
@@ -93,6 +95,7 @@ class ChiTietKyCong {
       'title': title,
       'kyCongId': kyCongId,
       'day': day,
+      'date': date,
       'chamCongNgay': json.encode(chamCongNgay),
       'thuNhapThucTe': thuNhapThucTe
       // 'wageOfMonth': wageOfMonth,
@@ -142,6 +145,7 @@ class ChiTietKyCong {
       kyCongId: map['kyCongId'],
       chamCongNgay: json.decode(map['chamCongNgay']).cast<int>(),
         thuNhapThucTe: map['thuNhapThucTe']?.toInt() ?? 0,
+      date: map['date'],
       //
       // wageOfMonth: map['wageOfMonth']?.toInt() ?? 0,
       // d1: map['d1'],

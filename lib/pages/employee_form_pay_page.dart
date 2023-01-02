@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test123/models/bill.dart';
 import '../models/employee.dart';
+import '../models/log.dart';
 import '../services/database_service.dart';
 
 class EmployeeFormPayPage extends StatefulWidget {
@@ -53,9 +56,21 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
       day: date.day,
       month: date.month,
       year: date.year,
-      date: DateFormat('dd-MM-yyyy hh:mm').format(date),
+      date: DateFormat('yyyyMMdd').format(date),
     );
     _databaseService.insertBill(bill);
+
+    Log log = Log(
+      day: date.day,
+      month: date.month,
+      year: date.year,
+      description: 'Thanh toán lương',
+      date: DateFormat('yyyyMMdd').format(date),
+      dataJson: json.encode(bill),
+      employeeId: widget.employee!.id!,
+      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+    );
+    _databaseService.insertLog(log);
 
     // trừ thông tin chưa thanh toán, thứ tự trừ tháng trước sau đó đến tổng
     widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan - soTien;
@@ -69,9 +84,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Material(
-        child: Scaffold(
+    return Scaffold(
           appBar: AppBar(
             title: Text('Thanh toán lương: ' + widget.employee!.name),
             centerTitle: true,
@@ -205,8 +218,6 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
   }
 }
