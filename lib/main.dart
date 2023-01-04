@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:calendar_agenda/calendar_agenda.dart';
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/rendering.dart';
@@ -14,10 +15,12 @@ import 'package:loadmore/loadmore.dart';
 import 'common_widgets/employee_builder.dart';
 import 'common_widgets/employee_in_day_builder.dart';
 import 'common_widgets/report_builder.dart';
+import 'models/employee.dart';
 import 'pages/home_page.dart';
 import 'package:cron/cron.dart';
 
 import 'services/database_service.dart';
+
 
 const _credentials = r'''
 {
