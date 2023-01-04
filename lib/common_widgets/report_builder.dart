@@ -15,18 +15,20 @@ import 'package:test123/models/employee.dart';
 import '../models/chi_tiet_ky_cong.dart';
 import '../services/database_service.dart';
 
-Future<void> saveAndLaunchFile(List<int> bytes, String fileName) async {
+Future<String> saveAndLaunchFile(List<int> bytes, String fileName) async {
   print("OPEN PDF");
   final path = (await getExternalStorageDirectory())?.path;
   final file = File('$path/$fileName');
   await file.writeAsBytes(bytes, flush: true);
 
-  OpenFile.open('$path/$fileName');
+  // OpenFile.open('$path/$fileName');
   print('$path/$fileName');
-  print("OPENED PDF");
+
+  return path!+'/'+fileName;
+  // print("OPENED PDF");
 }
 
-Future<void> generateInvoice(Employee employee) async {
+Future<String?> generateInvoice(Employee employee) async {
   final DatabaseService _databaseService = DatabaseService();
   // _databaseService.findByEmployeeId(employee.id!).then((employee1) {
   var dateTime = DateTime.now();
@@ -39,7 +41,7 @@ Future<void> generateInvoice(Employee employee) async {
         .then((chiTietKyCongs) {
       _databaseService
           .findBillsByEmployeeAndDateTime(employee.id!, dateTime)
-          .then((bills) {
+          .then((bills) async {
         print("PDF");
         //Create a PDF document.
         final PdfDocument document = PdfDocument();
@@ -50,6 +52,15 @@ Future<void> generateInvoice(Employee employee) async {
         final Size pageSize = page.getClientSize();
 
         //Generate PDF grid.
+        chiTietKyCongs.sort((var a, var b) {
+           if(int.parse(a.date) > int.parse(b.date)){
+             return 1;
+           } else if(int.parse(a.date) == int.parse(b.date)) {
+             return 0;
+           } else {
+             return -1;
+           }
+        });
         final PdfGrid grid = getGrid(chiTietKyCongs);
         //Draw the header section by creating text element
         final PdfLayoutResult resultHeader =
@@ -60,12 +71,15 @@ Future<void> generateInvoice(Employee employee) async {
                 .readAsBytesSync();
         final PdfFont font =
             PdfTrueTypeFont(fontData, 18, style: PdfFontStyle.bold);
-
-        DateTime current = DateTime.now();
+        final Uint8List fontDataRe =
+        File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
+            .readAsBytesSync();
+        final PdfFont fontRe =
+        PdfTrueTypeFont(fontDataRe, 18, style: PdfFontStyle.regular);
 
         PdfLayoutResult resultTitleWage = PdfTextElement(
                 text:
-                    "Ngày công trong tháng " + current.month.toString() + ': ',
+                    "Ngày công trong tháng " + DateFormat("MM/yyyy").format(DateTime.now())+ ': ',
                 font: font)
             .draw(
                 page: resultHeader.page,
@@ -94,8 +108,7 @@ Future<void> generateInvoice(Employee employee) async {
 
         PdfLayoutResult resultTitleTotalWage = PdfTextElement(
                 text: 'Tổng hợp ngày công tháng ' +
-                    current.month.toString() +
-                    ': ' +
+                    DateFormat("MM/yyyy").format(DateTime.now())+': ' +
                     soCongTrongThang.toString() +
                     ' công',
                 font: font)
@@ -111,8 +124,7 @@ Future<void> generateInvoice(Employee employee) async {
 
         PdfLayoutResult resultTitleTotal = PdfTextElement(
                 text: 'Lương và các khoản thanh toán tháng ' +
-                    current.month.toString() +
-                    ': ',
+                    DateFormat("MM/yyyy").format(DateTime.now())+': ',
                 font: font)
             .draw(
                 page: resultGetTotalWage.page,
@@ -121,8 +133,7 @@ Future<void> generateInvoice(Employee employee) async {
 
         PdfLayoutResult resultTitleTotalMonth = PdfTextElement(
                 text: 'Lương tháng ' +
-                    current.month.toString() +
-                    ': ' +
+                    DateFormat("MM/yyyy").format(DateTime.now())+': ' +
                     _formatNumber(luongThang.toString()) +
                     ' vnđ',
                 font: font)
@@ -131,18 +142,36 @@ Future<void> generateInvoice(Employee employee) async {
                 bounds: Rect.fromLTWH(
                     10, resultTitleTotal.bounds.bottom + 5, 0, 0))!;
 
-        getTotal(bills).draw(
-          page: resultTitleTotalMonth.page,
-          bounds:
-              Rect.fromLTWH(0, resultTitleTotalMonth.bounds.bottom + 10, 0, 0),
-        );
+        if(bills.isEmpty) {
+          PdfTextElement(text: 'Chưa thanh toán', font: fontRe).draw(
+            page: resultTitleTotalMonth.page,
+            bounds:
+            Rect.fromLTWH(15, resultTitleTotalMonth.bounds.bottom + 10, 0, 0),
+          );
+        } else {
+          getTotal(bills).draw(
+            page: resultTitleTotalMonth.page,
+            bounds:
+            Rect.fromLTWH(0, resultTitleTotalMonth.bounds.bottom + 10, 0, 0),
+          );
+        }
+
 
         //Save the PDF document
         List<int> bytes = document.saveSync();
         //Dispose the document.
         document.dispose();
         //Save and launch the file.
-        saveAndLaunchFile(bytes, 'Report.pdf');
+        final path = (await getExternalStorageDirectory())?.path;
+        final file = File('$path/Report.pdf');
+        await file.writeAsBytes(bytes, flush: true);
+
+        return path!+'/Report.pdf';
+        // saveAndLaunchFile(bytes, 'Report.pdf').then((value) {
+        //   result = value;
+        //
+        //   return result;
+        // });
       });
     });
 
@@ -248,8 +277,10 @@ PdfGrid getGrid(List<ChiTietKyCong> chiTietKyCongs) {
       chamCong = 'Cả ngày';
     } else if (element.chamCongNgay[1] == 1) {
       chamCong = 'Buổi sáng';
-    } else if (element.chamCongNgay[2] == 0) {
+    } else if (element.chamCongNgay[2] == 1) {
       chamCong = 'Buổi chiều';
+    } else {
+      chamCong = 'Nghỉ';
     }
 
     addDayWage(
@@ -259,8 +290,9 @@ PdfGrid getGrid(List<ChiTietKyCong> chiTietKyCongs) {
             '/' +
             dateTime.year.toString(),
         chamCong,
-        _formatNumber(element.thuNhapThucTe.toString()),
-        grid);
+        _formatNumber(element.thuNhapThucTe.toString())+' đ',
+        grid,
+    );
   }
 
   for (int i = 0; i < headerRow.cells.count; i++) {
@@ -320,7 +352,8 @@ PdfGrid getTotal(List<Bill> bills) {
             element.year.toString(),
         _formatNumber(element.soTien.toString()),
         element.description,
-        grid);
+        grid,
+    );
   }
 
   //Apply the table built-in style
@@ -386,7 +419,13 @@ PdfGrid getTotalWage(List<ChiTietKyCong> chiTietKyCongs) {
     soNVLamCaNgay += element.chamCongNgay[0];
     soNVLamBuoiSang += element.chamCongNgay[1];
     soNVLamBuoiChieu += element.chamCongNgay[2];
-    soNVNghi += element.chamCongNgay[3];
+
+    if(element.chamCongNgay[3] == 1) {
+      soNVNghi += element.chamCongNgay[3];
+    } else if(element.chamCongNgay[0] == 0 && element.chamCongNgay[1] == 0 && element.chamCongNgay[2] == 0) {
+      soNVNghi += 1;
+    }
+
   }
   addTotalWage(
       soNVLamCaNgay, soNVLamBuoiSang, soNVLamBuoiChieu, soNVNghi, grid);

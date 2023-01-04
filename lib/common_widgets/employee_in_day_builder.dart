@@ -525,9 +525,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
                       _chiTietKyCong.thuNhapThucTe = 0;
 
-                      if (int.parse(widget.employee.dateUpLevel) >=
+                      if (int.parse(widget.employee.dateUpLevel) <=
                           int.parse(
-                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                              DateFormat('yyyyMMdd').format(widget.dateTime))) {
                         _chiTietKyCong.thuNhapThucTe = widget.employee.wage;
                       } else {
                         _chiTietKyCong.thuNhapThucTe = widget.employee.wageOld;
@@ -584,9 +584,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
 
                       _chiTietKyCong.thuNhapThucTe = 0;
 
-                      if (int.parse(widget.employee.dateUpLevel) >=
+                      if (int.parse(widget.employee.dateUpLevel) <=
                           int.parse(
-                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                              DateFormat('yyyyMMdd').format(widget.dateTime))) {
                         _chiTietKyCong.thuNhapThucTe =
                             (widget.employee.wage / 2).round();
                       } else {
@@ -648,9 +648,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
 
                       _chiTietKyCong.thuNhapThucTe = 0;
-                      if (int.parse(widget.employee.dateUpLevel) >=
+                      if (int.parse(widget.employee.dateUpLevel) <=
                           int.parse(
-                              DateFormat('yyyyMMdd').format(DateTime.now()))) {
+                              DateFormat('yyyyMMdd').format(widget.dateTime))) {
                         _chiTietKyCong.thuNhapThucTe =
                             (widget.employee.wage / 2).round();
                       } else {

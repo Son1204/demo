@@ -9,6 +9,7 @@ import '../models/log.dart';
 import '../pages/employee_form_bonus_page.dart';
 import '../pages/employee_form_up_level_form.dart';
 import '../pages/log_page.dart';
+import '../pages/pdf_view_page.dart';
 import '../services/database_service.dart';
 
 class EmployeeDetailBuilder extends StatefulWidget {
@@ -21,12 +22,18 @@ class EmployeeDetailBuilder extends StatefulWidget {
 }
 
 class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
-
   final DatabaseService _databaseService = DatabaseService();
-  Log log = Log(day: DateTime.now().day, month: DateTime.now().month, year: DateTime.now().year, description: '', date: DateFormat('yyyyMMdd').format(DateTime.now()), dataJson: '{}', employeeId: 0, dateTime: DateTime.now().toString());
+  Log log = Log(
+      day: DateTime.now().day,
+      month: DateTime.now().month,
+      year: DateTime.now().year,
+      description: '',
+      date: DateFormat('yyyyMMdd').format(DateTime.now()),
+      dataJson: '{}',
+      employeeId: 0,
+      dateTime: DateTime.now().toString());
 
   Future<void> _onDeleteEmployee() async {
-
     _databaseService.deleteEmployee(widget.employee.id!);
 
     Navigator.pop(context);
@@ -35,6 +42,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
   int soTienDaThanhToanTrongThang = 0;
   double tongCongTrongThang = 0.0;
   int luongThang = 0;
+  int soTienThuongPhuCap = 0;
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
@@ -45,27 +53,25 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
     super.initState();
 
     _databaseService.findLogsByEmployee(widget.employee.id!, 0).then((values) {
-        log = values[0];
-        setState(() {
-
-        });
+      log = values[0];
+      setState(() {});
     });
 
-    _databaseService.findBillsByEmployeeAndDateTime(widget.employee.id!, DateTime.now()).then((values) {
+    _databaseService
+        .findBillsByEmployeeAndDateTime(widget.employee.id!, DateTime.now())
+        .then((values) {
       soTienDaThanhToanTrongThang = 0;
       for (var value in values) {
-        soTienDaThanhToanTrongThang = soTienDaThanhToanTrongThang + value.soTien;
+        soTienDaThanhToanTrongThang =
+            soTienDaThanhToanTrongThang + value.soTien;
       }
 
-      setState(() {
-
-      });
+      setState(() {});
     });
 
-
-    _databaseService.findChiTietKyCongByEmployeeAndDate(
-        widget.employee.id!, DateTime.now()).then((values) {
-
+    _databaseService
+        .findChiTietKyCongByEmployeeAndDate(widget.employee.id!, DateTime.now())
+        .then((values) {
       tongCongTrongThang = 0;
       luongThang = 0;
       for (var element in values) {
@@ -73,22 +79,15 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
           tongCongTrongThang += 1;
         }
 
-        if (element.chamCongNgay[1] == 1 ||
-            element.chamCongNgay[2] == 1) {
+        if (element.chamCongNgay[1] == 1 || element.chamCongNgay[2] == 1) {
           tongCongTrongThang += 0.5;
         }
 
         luongThang += element.thuNhapThucTe;
-
       }
-      setState(() {
-
-      });
-
+      setState(() {});
     });
-
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -112,10 +111,23 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                   child: Row(
                     children: [
-                      const Text("Tổng số tiền chưa thanh toán: "),
+                      const Text(
+                        "Tổng số tiền chưa thanh toán: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {},
-                        child: Text(_formatNumber(widget.employee.chuaThanhToan.toString())+' vnđ'),
+                        child: Text(
+                          _formatNumber(
+                                  widget.employee.chuaThanhToan.toString()) +
+                              ' đ',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.redAccent,
+                          ),
+                        ),
                         style: TextButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: const EdgeInsets.all(10),
@@ -133,10 +145,21 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                   child: Row(
                     children: [
-                      const Text("Tổng số tiền đã thanh toán: "),
+                      const Text(
+                        "Tổng số tiền đã thanh toán: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {},
-                        child: Text(_formatNumber(widget.employee.daThanhToan.toString())+' vnđ'),
+                        child: Text(
+                          _formatNumber(
+                                  widget.employee.daThanhToan.toString()) +
+                              ' đ',
+                          style: const TextStyle(
+                              fontSize: 18, color: Colors.green),
+                        ),
                         style: TextButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: const EdgeInsets.all(10),
@@ -154,11 +177,20 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                   child: Row(
                     children: [
-                      const Text("Mức lương/ngày: "),
+                      const Text(
+                        "Mức lương/ngày: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {},
-                        child: Text(_formatNumber(widget.employee.wage.toString()) +
-                            ' vnđ'),
+                        child: Text(
+                          _formatNumber(widget.employee.wage.toString()) + ' đ',
+                          style: const TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
                         style: TextButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: const EdgeInsets.all(10),
@@ -176,10 +208,17 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                   child: Row(
                     children: [
-                      const Text("Mô tả: "),
+                      const Text(
+                        "Mô tả: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
                       TextButton(
                         onPressed: () {},
-                        child: Text(widget.employee.description == '' ? '...' : widget.employee.description),
+                        child: Text(widget.employee.description == ''
+                            ? '...'
+                            : widget.employee.description),
                         style: TextButton.styleFrom(
                           minimumSize: Size.zero,
                           padding: const EdgeInsets.all(10),
@@ -214,7 +253,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Ngày công"),
+                            child: const Text(
+                              "Ngày công",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -222,6 +266,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(
+                        width: 10,
                       ),
                       Column(
                         children: [
@@ -239,7 +286,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Thanh toán"),
+                            child: const Text(
+                              "Thanh toán",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -258,16 +310,21 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             onPressed: () {
                               Navigator.of(context)
                                   .push(
-                                MaterialPageRoute(
-                                  builder: (_) => EmployeeFormBonusPage(
-                                    employee: widget.employee,
-                                  ),
-                                  fullscreenDialog: true,
-                                ),
-                              )
+                                    MaterialPageRoute(
+                                      builder: (_) => EmployeeFormBonusPage(
+                                        employee: widget.employee,
+                                      ),
+                                      fullscreenDialog: true,
+                                    ),
+                                  )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Phụ cấp/Thưởng"),
+                            child: const Text(
+                              "Phụ cấp/Thưởng",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -276,17 +333,41 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                           ),
                         ],
                       ),
-                      const SizedBox(
-                        width: 10,
-                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.only(top: 20, bottom: 20),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(3),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
                       Column(
                         children: [
                           const Icon(Icons.file_copy_sharp),
                           TextButton(
                             onPressed: () {
-                              generateInvoice(widget.employee);
+                              Navigator.of(context)
+                                  .push(
+                                MaterialPageRoute(
+                                  builder: (_) => PdfViewPage(
+                                    employee: widget.employee,
+                                  ),
+                                  fullscreenDialog: true,
+                                ),
+                              )
+                                  .then((_) => setState(() {}));
                             },
-                            child: const Text("Bảng lương"),
+                            child: const Text(
+                              "Bảng lương",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -314,7 +395,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   )
                                   .then((_) => setState(() {}));
                             },
-                            child: const Text("Điều chỉnh lương"),
+                            child: const Text(
+                              "Điều chỉnh lương",
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
                             style: TextButton.styleFrom(
                               minimumSize: Size.zero,
                               padding: const EdgeInsets.all(10),
@@ -344,9 +430,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     // color: Colors.blue
                     color: Colors.deepOrangeAccent,
                   ),
-                  child: const Text(
-                    "Chu kỳ lương tháng",
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  child: Text(
+                    "Thông tin tháng " + DateTime.now().month.toString() + ': ',
+                    style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
                 const SizedBox(
@@ -370,18 +456,22 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Row(
                           children: [
                             const Icon(Icons.attach_money_sharp),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Lương tháng "+DateTime.now().month.toString()+': '+_formatNumber(luongThang.toString())+' vnđ',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text('Hôm nay:'+DateFormat('dd/MM/yyyy').format(DateTime.now())),
-                              ],
+                            Text(
+                              "Lương tháng " +
+                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  ': ',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              _formatNumber(luongThang.toString()) + ' đ',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
                             ),
                           ],
                         ),
@@ -410,18 +500,22 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Row(
                           children: [
                             const Icon(Icons.attach_money_sharp),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Số công đi làm trong tháng "+DateTime.now().month.toString()+': '+tongCongTrongThang.toString()+' công',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text('Hôm nay: '+DateFormat('dd/MM/yyyy').format(DateTime.now())),
-                              ],
+                            Text(
+                              "Số công đi làm tháng " +
+                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  ': ',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              tongCongTrongThang.toString() + ' công',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
                             ),
                           ],
                         ),
@@ -450,18 +544,24 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Row(
                           children: [
                             const Icon(Icons.attach_money_sharp),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Số tiền đã thanh toán trong tháng "+DateTime.now().month.toString()+': '+_formatNumber(soTienDaThanhToanTrongThang.toString())+' vnđ',
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text('Hôm nay: '+DateFormat('dd/MM/yyyy').format(DateTime.now())),
-                              ],
+                            Text(
+                              "Số tiền đã thanh toán trong tháng " +
+                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  ': ',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              _formatNumber(
+                                      soTienDaThanhToanTrongThang.toString()) +
+                                  ' đ',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
                             ),
                           ],
                         ),
@@ -489,19 +589,23 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.attach_money_sharp),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text(
-                                  "Phụ cấp/thưởng tháng 12: 1.500.00 vnđ",
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Text('Hôm nay:'),
-                              ],
+                            const Icon(Icons.money_sharp),
+                            Text(
+                              "Phụ cấp/thưởng tháng " +
+                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  ': ',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              soTienThuongPhuCap.toString()+' đ',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.deepOrangeAccent,
+                              ),
                             ),
                           ],
                         ),
@@ -516,13 +620,13 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   onTap: () {
                     Navigator.of(context)
                         .push(
-                      MaterialPageRoute(
-                        builder: (_) => LogPage(
-                          employee: widget.employee,
-                        ),
-                        fullscreenDialog: true,
-                      ),
-                    )
+                          MaterialPageRoute(
+                            builder: (_) => LogPage(
+                              employee: widget.employee,
+                            ),
+                            fullscreenDialog: true,
+                          ),
+                        )
                         .then((_) => setState(() {}));
                   },
                   child: SizedBox(
@@ -542,7 +646,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.attach_money_sharp),
+                              const Icon(Icons.notifications),
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -553,13 +657,18 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
+                                  const SizedBox(height: 4,),
                                   Text('Ngày: ' + log.dateTime),
                                 ],
                               ),
                               const SizedBox(
                                 width: 16,
                               ),
-                              Text(log.description+', '+log.employeeName),
+                              Text(log.description + ', ' + log.employeeName,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                fontSize: 16,
+                              ),),
                             ],
                           ),
                         ),

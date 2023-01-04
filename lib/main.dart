@@ -11,6 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:gsheets/gsheets.dart';
 import 'package:loadmore/loadmore.dart';
+import 'package:test123/pages/excel_view_page.dart';
 
 import 'common_widgets/employee_builder.dart';
 import 'common_widgets/employee_in_day_builder.dart';
@@ -111,6 +112,13 @@ class _MyNevBarState extends State<MyNevBar> {
     const CalendarScreen(),
     const EmployeeBuilder(),
   ];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    importFromExcel();
+  }
 
   @override
   Widget build(BuildContext context) {
