@@ -5,9 +5,11 @@ import 'package:test123/models/employee.dart';
 import '../services/database_service.dart';
 
 class EmployeeWageBuilder extends StatefulWidget {
-  const EmployeeWageBuilder({Key? key, required this.employee})
+  const EmployeeWageBuilder({Key? key, required this.employee, required this.selectedDate, required this.onReload})
       : super(key: key);
   final Employee employee;
+  final DateTime selectedDate;
+  final Function onReload;
 
   @override
   _EmployeeWageBuilder createState() => _EmployeeWageBuilder();
@@ -25,7 +27,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
 
   Future<List<ChiTietKyCong>> _getChiTietKyCongByEmployeeAndDate() async {
     return await _databaseService.findChiTietKyCongByEmployeeAndDate(
-        widget.employee.id!, DateTime.now());
+        widget.employee.id!, widget.selectedDate);
   }
 
   @override
@@ -68,7 +70,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
             });
             if (snapshot.data!.isEmpty) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: Text("Chưa có dữ liệu", style: TextStyle(fontSize: 21,),),
               );
             }
             return Container(
@@ -85,7 +87,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
                     child: Row(
                       children: [
                         Text(
-                          'Lương tháng '+DateTime.now().month.toString()+': ',
+                          'Lương tháng '+DateFormat("MM/yyyy").format(widget.selectedDate)+': ',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -140,7 +142,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
                     child: Row(
                       children: [
                         Text(
-                          'Tổng số công trong tháng '+DateTime.now().month.toString()+': ',
+                          'Tổng số công trong tháng '+DateFormat("MM/yyyy").format(widget.selectedDate)+': ',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -230,6 +232,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
                           onReload: () {
                             setState(() {});
                           },
+                          selectedDate: widget.selectedDate,
                         );
                       },
                     ),
@@ -240,6 +243,12 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
           }),
     );
   }
+
+  @override
+  void dispose() {
+     super.dispose();
+     widget.onReload();
+  }
 }
 
 class BuildChiTietKyCongCard extends StatefulWidget {
@@ -247,11 +256,12 @@ class BuildChiTietKyCongCard extends StatefulWidget {
     Key? key,
     required this.chiTietKyCong,
     required this.employee,
-    required this.onReload,
+    required this.onReload, required this.selectedDate,
   }) : super(key: key);
   final ChiTietKyCong chiTietKyCong;
   final Employee employee;
   final Function() onReload;
+  final DateTime selectedDate;
 
   @override
   _BuildChiTietKyCongCard createState() => _BuildChiTietKyCongCard();
@@ -285,8 +295,8 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
               Text(
                 'Ngày ' +
                     DateFormat('dd/MM').format(DateTime(
-                      DateTime.now().year,
-                      DateTime.now().month,
+                      widget.selectedDate.year,
+                      widget.selectedDate.month,
                       widget.chiTietKyCong.day,
                     )) +
                     ': ',
@@ -319,8 +329,42 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
                   widget.chiTietKyCong.chamCongNgay[0] = 1;
                   print('CẢ NGÀY: ' +
                       widget.chiTietKyCong.chamCongNgay.toString());
+                  var preThuNhapThucTe = widget.chiTietKyCong.thuNhapThucTe;
                   widget.chiTietKyCong.thuNhapThucTe = 0;
-                  widget.chiTietKyCong.thuNhapThucTe = widget.employee.wage;
+
+                  if (int.parse(widget.employee.dateUpLevel) <=
+                      int.parse(
+                          DateFormat('yyyyMMdd').format(DateTime(
+                            widget.selectedDate.year,
+                            widget.selectedDate.month,
+                            widget.chiTietKyCong.day,
+                          )))) {
+                    widget.chiTietKyCong.thuNhapThucTe = widget.employee.wage;
+                  } else {
+                    widget.chiTietKyCong.thuNhapThucTe = widget.employee.wageOld;
+                  }
+
+                  if (preThuNhapThucTe < widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapCongThem =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapCongThem;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapCongThem;
+                  }
+
+                  if (preThuNhapThucTe > widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapGiamBot =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapGiamBot;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapGiamBot;
+                  }
+
+                  _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
                   widget.onReload();
                 }),
@@ -347,12 +391,50 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
                   isActiveBtn4 = false;
                   widget.chiTietKyCong.chamCongNgay = [0, 0, 0, 0];
                   widget.chiTietKyCong.chamCongNgay[1] = 1;
+
+                  var preThuNhapThucTe = widget.chiTietKyCong.thuNhapThucTe;
+
                   widget.chiTietKyCong.thuNhapThucTe = 0;
-                  widget.chiTietKyCong.thuNhapThucTe =
-                      (widget.employee.wage / 2).round();
+
+                  if (int.parse(widget.employee.dateUpLevel) <=
+                      int.parse(
+                          DateFormat('yyyyMMdd').format(DateTime(
+                            widget.selectedDate.year,
+                            widget.selectedDate.month,
+                            widget.chiTietKyCong.day,
+                          )))) {
+                    widget.chiTietKyCong.thuNhapThucTe =
+                        (widget.employee.wage / 2).round();
+                  } else {
+                    widget.chiTietKyCong.thuNhapThucTe =
+                        (widget.employee.wageOld / 2).round();
+                  }
+
+                  if (preThuNhapThucTe < widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapCongThem =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapCongThem;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapCongThem;
+                  }
+
+                  if (preThuNhapThucTe > widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapGiamBot =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapGiamBot;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapGiamBot;
+                  }
+
+                  _databaseService.updateEmployee(widget.employee);
+                  _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
                   print('BUỔI SÁNG: ' +
                       widget.chiTietKyCong.chamCongNgay.toString());
-                  _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
                   widget.onReload();
                 }),
               ),
@@ -378,12 +460,49 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
                   widget.chiTietKyCong.chamCongNgay = [0, 0, 0, 0];
                   widget.chiTietKyCong.chamCongNgay[2] = 1;
 
+                  var preThuNhapThucTe = widget.chiTietKyCong.thuNhapThucTe;
+
                   widget.chiTietKyCong.thuNhapThucTe = 0;
-                  widget.chiTietKyCong.thuNhapThucTe =
-                      (widget.employee.wage / 2).round();
+
+                  if (int.parse(widget.employee.dateUpLevel) <=
+                      int.parse(
+                          DateFormat('yyyyMMdd').format(DateTime(
+                            widget.selectedDate.year,
+                            widget.selectedDate.month,
+                            widget.chiTietKyCong.day,
+                          )))) {
+                    widget.chiTietKyCong.thuNhapThucTe =
+                        (widget.employee.wage / 2).round();
+                  } else {
+                    widget.chiTietKyCong.thuNhapThucTe =
+                        (widget.employee.wageOld / 2).round();
+                  }
+
+                  if (preThuNhapThucTe < widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapCongThem =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapCongThem;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapCongThem;
+                  }
+
+                  if (preThuNhapThucTe > widget.chiTietKyCong.thuNhapThucTe) {
+                    var thuNhapGiamBot =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapGiamBot;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapGiamBot;
+                  }
+
+                  _databaseService.updateEmployee(widget.employee);
+                  _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
                   print('BUỔI CHIỀU: ' +
                       widget.chiTietKyCong.chamCongNgay.toString());
-                  _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
                   widget.onReload();
                 }),
               ),
@@ -409,10 +528,22 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
                   isActiveBtn3 = false;
                   widget.chiTietKyCong.chamCongNgay = [0, 0, 0, 0];
                   widget.chiTietKyCong.chamCongNgay[3] = 1;
+
+                  var preThuNhapThucTe = widget.chiTietKyCong.thuNhapThucTe;
                   widget.chiTietKyCong.thuNhapThucTe = 0;
-                  print(
-                      'NGHỈ: ' + widget.chiTietKyCong.chamCongNgay.toString());
+
+                    var thuNhapGiamBot =
+                        widget.chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
+                    widget.employee.chuaThanhToan =
+                        widget.employee.chuaThanhToan + thuNhapGiamBot;
+                    widget.employee.tongTienChuaThanhToan =
+                        widget.employee.tongTienChuaThanhToan +
+                            thuNhapGiamBot;
+
+                  _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
+                  print('NGHỈ: ' + widget.chiTietKyCong.chamCongNgay.toString());
                   widget.onReload();
                 }),
               ),

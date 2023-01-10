@@ -167,16 +167,13 @@ Future<String?> generateInvoice(Employee employee) async {
         await file.writeAsBytes(bytes, flush: true);
 
         return path!+'/Report.pdf';
-        // saveAndLaunchFile(bytes, 'Report.pdf').then((value) {
-        //   result = value;
-        //
-        //   return result;
-        // });
       });
     });
 
     // });
   });
+
+  return null;
 }
 
 String _formatNumber(String s) =>
@@ -271,7 +268,7 @@ PdfGrid getGrid(List<ChiTietKyCong> chiTietKyCongs) {
 
   //Add rows
   for (var element in chiTietKyCongs) {
-    var chamCong = 'Nghỉ';
+    var chamCong = '';
 
     if (element.chamCongNgay[0] == 1) {
       chamCong = 'Cả ngày';
@@ -279,18 +276,14 @@ PdfGrid getGrid(List<ChiTietKyCong> chiTietKyCongs) {
       chamCong = 'Buổi sáng';
     } else if (element.chamCongNgay[2] == 1) {
       chamCong = 'Buổi chiều';
-    } else {
+    } else if (element.chamCongNgay[3] == 1) {
       chamCong = 'Nghỉ';
     }
 
     addDayWage(
-        element.day.toString() +
-            '/' +
-            dateTime.month.toString() +
-            '/' +
-            dateTime.year.toString(),
+      DateFormat("dd/MM/yyyy").format(DateTime(DateTime.now().year, DateTime.now().month, element.day)),
         chamCong,
-        _formatNumber(element.thuNhapThucTe.toString())+' đ',
+        _formatNumber(element.thuNhapThucTe.toString()),
         grid,
     );
   }
@@ -337,19 +330,15 @@ PdfGrid getTotal(List<Bill> bills) {
   //Set style
   headerRow.cells[0].value = 'Ngày thanh toán';
   headerRow.cells[0].stringFormat.alignment = PdfTextAlignment.center;
-  headerRow.cells[1].value = 'Nội dung';
+  headerRow.cells[1].value = 'Số tiền';
   headerRow.cells[1].stringFormat.alignment = PdfTextAlignment.center;
-  headerRow.cells[2].value = 'Số tiền';
+  headerRow.cells[2].value = 'Nội dung';
   headerRow.cells[2].stringFormat.alignment = PdfTextAlignment.center;
 
   //Add rows
   for (var element in bills) {
     addDayWage(
-        element.day.toString() +
-            '/' +
-            element.month.toString() +
-            '/' +
-            element.year.toString(),
+        DateFormat("dd/MM/yyyy").format(DateTime(element.year, element.month, element.day)),
         _formatNumber(element.soTien.toString()),
         element.description,
         grid,
@@ -358,7 +347,6 @@ PdfGrid getTotal(List<Bill> bills) {
 
   //Apply the table built-in style
   //Set gird columns width
-  grid.columns[1].width = 300;
   for (int i = 0; i < headerRow.cells.count; i++) {
     headerRow.cells[i].style.cellPadding = PdfPaddings(
       bottom: 5,

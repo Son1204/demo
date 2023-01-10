@@ -4,16 +4,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
-// import 'package:material_dialogs/widgets/buttons/icon_button.dart';
-// import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
 import 'package:test123/models/chi_tiet_ky_cong.dart';
 import 'package:test123/models/employee.dart';
 import 'package:test123/models/ky_cong.dart';
 
-import '../pages/employee_form_page.dart';
 import '../services/database_service.dart';
 import 'employee_detail_builder.dart';
-// import 'package:material_dialogs/material_dialogs.dart';
 
 class EmployeeInDayBuilder extends StatefulWidget {
   const EmployeeInDayBuilder({Key? key, required this.dateTime})
@@ -97,7 +93,7 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
         // }
         if (snapshot.data!.isEmpty) {
           return const Center(
-            child: CircularProgressIndicator(),
+            child: Text("Chưa có nhân viên nào"),
           );
         }
         return Column(
@@ -272,6 +268,8 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                     dateTime: widget.dateTime,
                     onReload: () {
                       setState(() {});
+
+
                     },
                     needLoad: false,
                   );
@@ -437,7 +435,18 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       .push(
                         MaterialPageRoute(
                           builder: (_) =>
-                              EmployeeDetailBuilder(employee: widget.employee),
+                              EmployeeDetailBuilder(employee: widget.employee, selectedDate: widget.dateTime, onReload: () {
+                                _createIfNotExistsKyCong().then((value) {
+                                  _chiTietKyCong = value;
+                                  isActiveBtn1 = _chiTietKyCong.chamCongNgay[0] == 1 ? true : false;
+                                  isActiveBtn2 = _chiTietKyCong.chamCongNgay[1] == 1 ? true : false;
+                                  isActiveBtn3 = _chiTietKyCong.chamCongNgay[2] == 1 ? true : false;
+                                  isActiveBtn4 = _chiTietKyCong.chamCongNgay[3] == 1 ? true : false;
+                                  print(value);
+                                  setState(() {});
+                                  widget.onReload();
+                                });
+                              },),
                           fullscreenDialog: true,
                         ),
                       )
@@ -710,17 +719,6 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
                       _chiTietKyCong.thuNhapThucTe = 0;
 
-                      if (preThuNhapThucTe < _chiTietKyCong.thuNhapThucTe) {
-                        var thuNhapCongThem =
-                            _chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
-                        widget.employee.chuaThanhToan =
-                            widget.employee.chuaThanhToan + thuNhapCongThem;
-                        widget.employee.tongTienChuaThanhToan =
-                            widget.employee.tongTienChuaThanhToan +
-                                thuNhapCongThem;
-                      }
-
-                      if (preThuNhapThucTe > _chiTietKyCong.thuNhapThucTe) {
                         var thuNhapGiamBot =
                             _chiTietKyCong.thuNhapThucTe - preThuNhapThucTe;
                         widget.employee.chuaThanhToan =
@@ -728,7 +726,6 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                         widget.employee.tongTienChuaThanhToan =
                             widget.employee.tongTienChuaThanhToan +
                                 thuNhapGiamBot;
-                      }
 
                       _databaseService.updateEmployee(widget.employee);
                       _databaseService.updateChiTietKyCong(_chiTietKyCong);

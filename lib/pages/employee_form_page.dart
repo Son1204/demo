@@ -55,6 +55,8 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
         day: date.day,
         month: date.month,
         year: date.year,
+        descriptionOfUser: description == '' ? 'Mức lương/ngày' : description,
+        soTien: int.parse(wage),
         description: 'Thêm nhân viên',
         date: DateFormat('yyyyMMdd').format(date),
         dataJson: json.encode(Employee(

@@ -8,8 +8,9 @@ import '../models/employee.dart';
 import '../services/database_service.dart';
 
 class EmployeeFormUpLevelPage extends StatefulWidget {
-  const EmployeeFormUpLevelPage({Key? key, this.employee}) : super(key: key);
+  const EmployeeFormUpLevelPage({Key? key, this.employee, required this.onReload}) : super(key: key);
   final Employee? employee;
+  final Function onReload;
 
   @override
   _EmployeeFormUpLevelPage createState() => _EmployeeFormUpLevelPage();
@@ -73,13 +74,15 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       month: date.month,
       year: date.year,
       description: 'Điều chỉnh lương',
+      descriptionOfUser: description,
+      soTien: luongMoi,
       date: DateFormat('yyyyMMdd').format(DateTime.now()),
       dataJson: json.encode(upLevel),
       employeeId: widget.employee!.id!,
       dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
     );
     _databaseService.insertLog(log);
-    // TODO: sonct cập nhật những ngày công từ ngày tăng lương
+    // TODO: cập nhật những ngày công từ ngày tăng lương
     _databaseService
         .findChiTietKyCongsByEmployeeIdAndDateTime(widget.employee!.id!, DateFormat('yyyyMMdd').format(date))
         .then((chiTietKyCongs) {
@@ -95,6 +98,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       }
     });
 
+    widget.onReload();
     Navigator.pop(context);
   }
 

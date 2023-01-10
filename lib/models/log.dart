@@ -3,12 +3,14 @@ import 'dart:convert';
 class Log {
   final int? id;
   final String description;
+  final String descriptionOfUser;
   final int day;
   final int month;
   final int year;
   final String date; // dung de filter
   final String dateTime; // thoi gian log
   final String dataJson;
+  final int soTien;
   String employeeName;
   int employeeId;
   // List<int> chamCongNgay;
@@ -25,11 +27,13 @@ class Log {
     required this.month,
     required this.year,
     required this.description,
+    required this.descriptionOfUser,
     required this.date,
     required this.dataJson,
     required this.employeeId,
     required this.dateTime,
-    this.employeeName = ''
+    this.employeeName = '',
+    this.soTien = 0,
   });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
@@ -45,6 +49,8 @@ class Log {
       'dataJson': dataJson,
       'employeeId': employeeId,
       'dateTime': dateTime,
+      'soTien': soTien,
+      'descriptionOfUser': descriptionOfUser
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -61,7 +67,9 @@ class Log {
       dataJson: json.decode(map['dataJson']),
       employeeId: map['employeeId']?.toInt() ?? 0,
       dateTime: map['dateTime'],
-      employeeName: map['name'] ?? ''
+      employeeName: map['name'] ?? '',
+        soTien: map['soTien']?.toInt() ?? 0,
+        descriptionOfUser: map['descriptionOfUser']
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }

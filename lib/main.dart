@@ -1,6 +1,8 @@
 // import 'dart:ffi';
 
 import 'dart:math';
+import 'package:bottom_picker/bottom_picker.dart';
+import 'package:bottom_picker/resources/arrays.dart';
 import 'package:calendar_agenda/calendar_agenda.dart';
 import 'package:dot_navigation_bar/dot_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,6 +15,7 @@ import 'package:gsheets/gsheets.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:test123/pages/excel_view_page.dart';
 
+
 import 'common_widgets/employee_builder.dart';
 import 'common_widgets/employee_in_day_builder.dart';
 import 'common_widgets/report_builder.dart';
@@ -21,6 +24,10 @@ import 'pages/home_page.dart';
 import 'package:cron/cron.dart';
 
 import 'services/database_service.dart';
+import 'ultil/common.dart';
+
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 
 const _credentials = r'''
@@ -81,6 +88,58 @@ void main() async {
   runApp(const MyApp());
 }
 
+class OrientationListener extends StatefulWidget {
+  @override
+  _OrientationListenerState createState() => _OrientationListenerState();
+}
+
+class _OrientationListenerState extends State<OrientationListener>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    print('$WidgetsBindingObserver metrics changed ${DateTime.now()}: '
+        '${WidgetsBinding.instance!.window.physicalSize.aspectRatio > 1 ? Orientation.landscape : Orientation.portrait}');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: MediaQuery(
+        data: MediaQueryData.fromWindow(WidgetsBinding.instance!.window),
+        child: OrientationBuilder(
+          builder: (context, orientation) {
+            print('$OrientationBuilder rebuild ${DateTime.now()}: $orientation');
+            // if(orientation == Orientation.portrait) {
+            //   return Container(child: Text("Portrait"),);
+            // }
+            if (orientation == Orientation.landscape){
+              return Center(
+                child: Text("Xin chao"),
+              ); //rest of your landscape code)
+              }else{
+              return SingleChildScrollView(
+                child: Text("kkkkkkkk"),
+              ); //rest of you portrait code)
+              }
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -97,6 +156,342 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+class ExampleApp extends StatelessWidget {
+  final countryList = [
+    Text('Tháng 2'),
+    Text('Tháng 3'),
+    Text('Tháng 4'),
+    Text('Tháng 5'),
+    Text('Tháng 6'),
+    Text('Tháng 7'),
+    Text('Tháng 8'),
+    Text('Tháng 9')
+  ];
+
+  final buttonWidth = 300.0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Color(0xffF6F2F2),
+      width: double.infinity,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Image.network(
+            'https://github.com/koukibadr/Bottom-Picker/blob/main/example/bottom_picker_logo.gif?raw=true',
+            width: 200,
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openSimpleItemPicker(context, countryList);
+              },
+              child: Text('Simple Item picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openSecondSimpleItemPicker(context, countryList);
+              },
+              child: Text('Simple Item picker with different theme'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openDatePicker(context);
+              },
+              child: Text('Date Picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openRangeDatePicker(context);
+              },
+              child: Text('Range Date Picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openArabicRangeDatePicker(context);
+              },
+              child: Text('Arabic Range Date Picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openTimePicker(context);
+              },
+              child: Text('Time Picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openDateTimePicker(context);
+              },
+              child: Text('Date and Time Picker'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openDateTimePickerWithCustomButton(context);
+              },
+              child: Text('Bottom picker with custom button'),
+            ),
+          ),
+          SizedBox(
+            width: buttonWidth,
+            child: ElevatedButton(
+              onPressed: () {
+                _openPickerWithCustomPickerTextStyle(context);
+              },
+              child: Text(
+                'Bottom picker with custom picker text style',
+                style: TextStyle(
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _openSimpleItemPicker(BuildContext context, List<Text> items) {
+    BottomPicker(
+      items: items,
+      dismissable: true,
+      title: 'Choose your country',
+      titleStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      bottomPickerTheme: BottomPickerTheme.plumPlate,
+      onSubmit: (index) {
+        print(index);
+      },
+      onChange: (index) {
+        print(index);
+      },
+      buttonAlignement: MainAxisAlignment.center,
+      pickerTextStyle: TextStyle(fontSize: 18),
+      displayButtonIcon: false,
+      displaySubmitButton: false,
+    ).show(context);
+  }
+
+  void _openSecondSimpleItemPicker(BuildContext context, List<Text> items) {
+    BottomPicker(
+      items: items,
+      selectedItemIndex: 1,
+      title: 'اختر بلدك',
+      titleStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+      onChange: (index) {
+        print(index);
+      },
+      onSubmit: (index) {
+        print(index);
+      },
+      bottomPickerTheme: BottomPickerTheme.morningSalad,
+      layoutOrientation: LayoutOrientation.rtl,
+    ).show(context);
+  }
+
+  void _openDatePicker(BuildContext context) {
+    BottomPicker.date(
+      dismissable: true,
+      title: 'Set your Birthday',
+      dateOrder: DatePickerDateOrder.ymd,
+      pickerTextStyle: TextStyle(
+        color: Colors.blue,
+        fontWeight: FontWeight.bold,
+        fontSize: 21,
+      ),
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+        color: Colors.blue,
+      ),
+      onChange: (index) {
+        print(index);
+      },
+      onSubmit: (index) {
+        print(index);
+      },
+      bottomPickerTheme: BottomPickerTheme.plumPlate,
+    ).show(context);
+  }
+
+  void _openRangeDatePicker(BuildContext context) {
+    BottomPicker.range(
+      title: 'Set date range',
+      description: 'Please select a first date and an end date',
+      dateOrder: DatePickerDateOrder.dmy,
+      minFirstDate: DateTime.now(),
+      minSecondDate: DateTime.now().add(const Duration(days: 1)),
+      pickerTextStyle: TextStyle(
+        color: Colors.blue,
+        fontWeight: FontWeight.bold,
+        fontSize: 12,
+      ),
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.black,
+      ),
+      descriptionStyle: TextStyle(
+        color: Colors.black,
+      ),
+      onSubmitPressed: (firstDate, secondDate) {
+        print(firstDate);
+        print(secondDate);
+      },
+      bottomPickerTheme: BottomPickerTheme.plumPlate,
+    ).show(context);
+  }
+
+  void _openArabicRangeDatePicker(BuildContext context) {
+    BottomPicker.range(
+      title: 'حدد النطاق الزمني',
+      description: 'الرجاء تحديد أول تاريخ وتاريخ انتهاء',
+      dateOrder: DatePickerDateOrder.dmy,
+      layoutOrientation: LayoutOrientation.rtl,
+      pickerTextStyle: TextStyle(
+        color: Colors.blue,
+        fontWeight: FontWeight.bold,
+        fontSize: 12,
+      ),
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.black,
+      ),
+      descriptionStyle: TextStyle(
+        color: Colors.black,
+      ),
+      onSubmitPressed: (firstDate, secondDate) {
+        print(firstDate);
+        print(secondDate);
+      },
+      bottomPickerTheme: BottomPickerTheme.plumPlate,
+    ).show(context);
+  }
+
+  void _openTimePicker(BuildContext context) {
+    BottomPicker.time(
+      title: 'Set your next meeting time',
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 21,
+        color: Colors.orange,
+      ),
+      onSubmit: (index) {
+        print(index);
+      },
+      onClose: () {
+        print('Picker closed');
+      },
+      bottomPickerTheme: BottomPickerTheme.orange,
+      use24hFormat: true,
+    ).show(context);
+  }
+
+  void _openDateTimePicker(BuildContext context) {
+    BottomPicker.dateTime(
+      title: 'Set the event exact time and date',
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.black,
+      ),
+      onSubmit: (date) {
+        print(date);
+      },
+      onClose: () {
+        print('Picker closed');
+      },
+      iconColor: Colors.black,
+      minDateTime: DateTime(2021, 5, 1),
+      maxDateTime: DateTime(2021, 8, 2),
+      initialDateTime: DateTime(2021, 5, 1),
+      gradientColors: [Color(0xfffdcbf1), Color(0xffe6dee9)],
+    ).show(context);
+  }
+
+  void _openDateTimePickerWithCustomButton(BuildContext context) {
+    BottomPicker.dateTime(
+      title: 'Set the event exact time and date',
+      titleStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15,
+        color: Colors.black,
+      ),
+      onSubmit: (date) {
+        print(date);
+      },
+      onClose: () {
+        print('Picker closed');
+      },
+      buttonText: 'Confirm',
+      buttonTextStyle: const TextStyle(color: Colors.white),
+      buttonSingleColor: Colors.pink,
+      iconColor: Colors.black,
+      minDateTime: DateTime(2021, 5, 1),
+      maxDateTime: DateTime(2021, 8, 2),
+      gradientColors: [Color(0xfffdcbf1), Color(0xffe6dee9)],
+    ).show(context);
+  }
+
+  void _openPickerWithCustomPickerTextStyle(BuildContext context) {
+    BottomPicker(
+      items: const [
+        Text('Tháng 1'),
+        Text('Tháng 2'),
+        Text('Tháng 3'),
+        Text('Tháng 4'),
+        Text('Tháng 5'),
+        Text('Tháng 6'),
+        Text('Tháng 7'),
+        Text('Tháng 8'),
+        Text('Tháng 9'),
+        Text('Tháng 10'),
+        Text('Tháng 11'),
+        Text('Tháng 12'),
+      ],
+      dismissable: true,
+      title: 'Chọn tháng hiển thị',
+      titleStyle: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.bold,
+      ),
+      pickerTextStyle: const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+        fontSize: 26
+      ),
+      closeIconColor: Colors.red,
+      onSubmit: (item) {
+        print(item);
+      },
+    ).show(context);
+  }
+}
+
 
 class MyNevBar extends StatefulWidget {
   const MyNevBar({Key? key}) : super(key: key);

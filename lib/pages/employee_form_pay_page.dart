@@ -9,8 +9,9 @@ import '../models/log.dart';
 import '../services/database_service.dart';
 
 class EmployeeFormPayPage extends StatefulWidget {
-  const EmployeeFormPayPage({Key? key, this.employee}) : super(key: key);
+  const EmployeeFormPayPage({Key? key, this.employee, required this.onReload}) : super(key: key);
   final Employee? employee;
+  final Function onReload;
 
   @override
   _EmployeeFormPayPage createState() => _EmployeeFormPayPage();
@@ -48,7 +49,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
     var date = DateTime.now();
     var soTien = int.parse(wage);
     
-    if (await confirm(context, title: Text('Đồng ý đã thanh toán: '+_formatNumber(soTien.toString())+'đ cho nhân viên: '+widget.employee!.name))) {
+    if (await confirm(context, title: Text('Đồng ý thanh toán: '+_formatNumber(soTien.toString())+'đ cho nhân viên: '+widget.employee!.name))) {
 
       // lưu thanh toán
       Bill bill = Bill(
@@ -65,6 +66,8 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
       Log log = Log(
         day: date.day,
         month: date.month,
+        descriptionOfUser: description,
+        soTien: soTien,
         year: date.year,
         description: 'Thanh toán lương',
         date: DateFormat('yyyyMMdd').format(date),
@@ -82,6 +85,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
 
       _databaseService.updateEmployee(widget.employee!);
       Navigator.pop(context);
+      widget.onReload();
       return print('pressedOK');
     }
     return print('pressedCancel');

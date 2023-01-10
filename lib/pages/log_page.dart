@@ -124,36 +124,48 @@ class _LogPage extends State<LogPage> {
                           const SizedBox(
                             width: 16,
                           ),
-                          const SizedBox(
-                            width: 20,
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Text(list[index].description, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Text("Ghi chú: "+list[index].descriptionOfUser, style: const TextStyle(fontSize: 16,),),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              Text(_formatNumber(list[index].soTien.toString())+'đ', style: const TextStyle(fontSize: 16,),),
+                            ],
                           ),
-                          Text(list[index].description +
-                              ', nhân viên: ' +
-                              list[index].employeeName, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),),
                         ],
                       ),
                     ),
                     alignment: Alignment.center,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      bottom: 10,
-                      top: 10,
-                      left: 5,
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        const Text('Chi tiết:'),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        JsonViewer(json.decode(list[index].dataJson)),
-                      ],
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.only(
+                  //     bottom: 10,
+                  //     top: 10,
+                  //     left: 5,
+                  //   ),
+                  //   child: Column(
+                  //     children: [
+                  //       const SizedBox(
+                  //         height: 10,
+                  //       ),
+                  //       const Text('Chi tiết:'),
+                  //       const SizedBox(
+                  //         height: 10,
+                  //       ),
+                  //       JsonViewer(json.decode(list[index].dataJson)),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               );
             },

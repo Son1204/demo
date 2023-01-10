@@ -1,7 +1,8 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test123/common_widgets/employee_wage_builder.dart';
-import 'package:test123/common_widgets/report_builder.dart';
 import 'package:test123/models/employee.dart';
 import 'package:test123/pages/employee_form_pay_page.dart';
 
@@ -11,11 +12,16 @@ import '../pages/employee_form_up_level_form.dart';
 import '../pages/log_page.dart';
 import '../pages/pdf_view_page.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
+import 'package:pdf/widgets.dart' as w;
 
 class EmployeeDetailBuilder extends StatefulWidget {
-  const EmployeeDetailBuilder({Key? key, required this.employee})
+  const EmployeeDetailBuilder(
+      {Key? key, required this.employee, required this.selectedDate, required this.onReload})
       : super(key: key);
   final Employee employee;
+  final DateTime selectedDate;
+  final Function onReload;
 
   @override
   _EmployeeDetailBuilder createState() => _EmployeeDetailBuilder();
@@ -23,15 +29,23 @@ class EmployeeDetailBuilder extends StatefulWidget {
 
 class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
   final DatabaseService _databaseService = DatabaseService();
+
+  final pdf = w.Document();
+  Future<Uint8List> getPDFData() async {
+    return await pdf.save();
+  }
+
   Log log = Log(
       day: DateTime.now().day,
       month: DateTime.now().month,
       year: DateTime.now().year,
       description: '',
+      descriptionOfUser: '',
       date: DateFormat('yyyyMMdd').format(DateTime.now()),
       dataJson: '{}',
       employeeId: 0,
-      dateTime: DateTime.now().toString());
+      dateTime: DateTime.now().toString(),
+  );
 
   Future<void> _onDeleteEmployee() async {
     _databaseService.deleteEmployee(widget.employee.id!);
@@ -46,19 +60,27 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
+  var month = DateTime.now().month;
+  late DateTime selectedDate;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    selectedDate = widget.selectedDate;
 
+    loadData();
+  }
+
+  void loadData() {
+    print("(loadData)employee_detail_builder");
     _databaseService.findLogsByEmployee(widget.employee.id!, 0).then((values) {
       log = values[0];
       setState(() {});
     });
 
     _databaseService
-        .findBillsByEmployeeAndDateTime(widget.employee.id!, DateTime.now())
+        .findBillsByEmployeeAndDateTime(widget.employee.id!, selectedDate)
         .then((values) {
       soTienDaThanhToanTrongThang = 0;
       for (var value in values) {
@@ -70,7 +92,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
     });
 
     _databaseService
-        .findChiTietKyCongByEmployeeAndDate(widget.employee.id!, DateTime.now())
+        .findChiTietKyCongByEmployeeAndDate(widget.employee.id!, selectedDate)
         .then((values) {
       tongCongTrongThang = 0;
       luongThang = 0;
@@ -86,6 +108,14 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
         luongThang += element.thuNhapThucTe;
       }
       setState(() {});
+    });
+
+    _databaseService.findBonusByEmployeeAndDateTime(widget.employee.id!, selectedDate).then((values) {
+      soTienThuongPhuCap = 0;
+      for (var element in values) {
+        soTienThuongPhuCap = soTienThuongPhuCap + element.soTien;
+      }
+      setState(() { });
     });
   }
 
@@ -103,6 +133,21 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                MonthListView(
+                  onReload: (e) {
+                    print(e);
+                    month = e;
+                    selectedDate = DateTime.parse(
+                        widget.selectedDate.year.toString() +
+                            (month < 10
+                                ? '0' + month.toString()
+                                : month.toString()) +
+                            "01");
+                    print(selectedDate);
+
+                    loadData();
+                  },
+                ),
                 Container(
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.all(
@@ -247,7 +292,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   .push(
                                     MaterialPageRoute(
                                       builder: (_) => EmployeeWageBuilder(
-                                          employee: widget.employee),
+                                        employee: widget.employee,
+                                        selectedDate: selectedDate,
+                                        onReload: () {
+                                          loadData();
+                                        },
+                                      ),
                                       fullscreenDialog: true,
                                     ),
                                   )
@@ -279,7 +329,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   .push(
                                     MaterialPageRoute(
                                       builder: (_) => EmployeeFormPayPage(
-                                        employee: widget.employee,
+                                        employee: widget.employee, onReload: () {
+                                          loadData();
+                                      },
                                       ),
                                       fullscreenDialog: true,
                                     ),
@@ -312,7 +364,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   .push(
                                     MaterialPageRoute(
                                       builder: (_) => EmployeeFormBonusPage(
-                                        employee: widget.employee,
+                                        employee: widget.employee, onReload: () {
+                                          loadData();
+                                      },
                                       ),
                                       fullscreenDialog: true,
                                     ),
@@ -353,13 +407,13 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             onPressed: () {
                               Navigator.of(context)
                                   .push(
-                                MaterialPageRoute(
-                                  builder: (_) => PdfViewPage(
-                                    employee: widget.employee,
-                                  ),
-                                  fullscreenDialog: true,
-                                ),
-                              )
+                                    MaterialPageRoute(
+                                      builder: (_) => PdfViewPage(
+                                        employee: widget.employee,
+                                      ),
+                                      fullscreenDialog: true,
+                                    ),
+                                  )
                                   .then((_) => setState(() {}));
                             },
                             child: const Text(
@@ -388,7 +442,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   .push(
                                     MaterialPageRoute(
                                       builder: (_) => EmployeeFormUpLevelPage(
-                                        employee: widget.employee,
+                                        employee: widget.employee, onReload: () {
+                                          loadData();
+                                      },
                                       ),
                                       fullscreenDialog: true,
                                     ),
@@ -431,7 +487,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     color: Colors.deepOrangeAccent,
                   ),
                   child: Text(
-                    "Thông tin tháng " + DateTime.now().month.toString() + ': ',
+                    "Thông tin tháng " + month.toString() + ': ',
                     style: const TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
@@ -458,7 +514,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             const Icon(Icons.attach_money_sharp),
                             Text(
                               "Lương tháng " +
-                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  (month < 10
+                                      ? '0' + month.toString()
+                                      : month.toString()) +
+                                  '/' +
+                                  DateFormat("yyyy")
+                                      .format(widget.selectedDate) +
                                   ': ',
                               style: const TextStyle(
                                 fontSize: 16,
@@ -502,7 +563,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             const Icon(Icons.attach_money_sharp),
                             Text(
                               "Số công đi làm tháng " +
-                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  (month < 10
+                                      ? '0' + month.toString()
+                                      : month.toString()) +
+                                  '/' +
+                                  DateFormat("yyyy")
+                                      .format(widget.selectedDate) +
                                   ': ',
                               style: const TextStyle(
                                 fontSize: 16,
@@ -545,8 +611,13 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                           children: [
                             const Icon(Icons.attach_money_sharp),
                             Text(
-                              "Số tiền đã thanh toán trong tháng " +
-                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                              "Đã thanh toán trong tháng " +
+                                  (month < 10
+                                      ? '0' + month.toString()
+                                      : month.toString()) +
+                                  '/' +
+                                  DateFormat("yyyy")
+                                      .format(widget.selectedDate) +
                                   ': ',
                               style: const TextStyle(
                                 fontSize: 16,
@@ -592,7 +663,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                             const Icon(Icons.money_sharp),
                             Text(
                               "Phụ cấp/thưởng tháng " +
-                                  DateFormat("MM/yyyy").format(DateTime.now()) +
+                                  (month < 10
+                                      ? '0' + month.toString()
+                                      : month.toString()) +
+                                  '/' +
+                                  DateFormat("yyyy")
+                                      .format(widget.selectedDate) +
                                   ': ',
                               style: const TextStyle(
                                 fontSize: 16,
@@ -600,7 +676,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                               ),
                             ),
                             Text(
-                              soTienThuongPhuCap.toString()+' đ',
+                              _formatNumber(soTienThuongPhuCap.toString()) + ' đ',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -657,18 +733,22 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 4,),
+                                  const SizedBox(
+                                    height: 4,
+                                  ),
                                   Text('Ngày: ' + log.dateTime),
                                 ],
                               ),
                               const SizedBox(
                                 width: 16,
                               ),
-                              Text(log.description + ', ' + log.employeeName,
+                              Text(
+                                log.descriptionOfUser == '' ? log.description : log.descriptionOfUser + ', ' + _formatNumber(log.soTien.toString())+'đ',
                                 overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                fontSize: 16,
-                              ),),
+                                  fontSize: 16,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -676,11 +756,13 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10,),
                 TextButton(
                   onPressed: () {
                     _onDeleteEmployee();
                   },
                   child: Container(
+                    margin: EdgeInsets.zero,
                     decoration: BoxDecoration(
                       border: Border.all(color: Colors.blue.shade100),
                       color: Colors.white,
@@ -704,5 +786,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
             )),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    widget.onReload();
   }
 }

@@ -3,13 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test123/models/bill.dart';
+import '../models/bonus.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
 import '../services/database_service.dart';
 
 class EmployeeFormBonusPage extends StatefulWidget {
-  const EmployeeFormBonusPage({Key? key, this.employee}) : super(key: key);
+  const EmployeeFormBonusPage({Key? key, this.employee, required this.onReload}) : super(key: key);
   final Employee? employee;
+  final Function onReload;
 
   @override
   _EmployeeFormBonusPage createState() => _EmployeeFormBonusPage();
@@ -48,37 +50,82 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
     var date = DateTime.now();
     var soTien = int.parse(wage);
 
-    // lưu thanh toán
-    Bill bill = Bill(
-      soTien: soTien,
-      description: description,
-      employeeId: widget.employee!.id!,
-      day: date.day,
-      month: date.month,
-      year: date.year,
-      date: DateFormat('yyyyMMdd').format(date),
-    );
-    _databaseService.insertBill(bill);
 
-    Log log = Log(
-      day: date.day,
-      month: date.month,
-      year: date.year,
-      description: 'Thanh toán lương',
-      date: DateFormat('yyyyMMdd').format(date),
-      dataJson: json.encode(bill),
-      employeeId: widget.employee!.id!,
-      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
-    );
-    _databaseService.insertLog(log);
+    if(daThanhToan) {
+      // lưu thanh toán
+      Bill bill = Bill(
+        soTien: soTien,
+        description: description,
+        employeeId: widget.employee!.id!,
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        date: DateFormat('yyyyMMdd').format(date),
+      );
+      _databaseService.insertBill(bill);
 
-    // trừ thông tin chưa thanh toán, thứ tự trừ tháng trước sau đó đến tổng
-    widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan - soTien;
+      Log log = Log(
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        descriptionOfUser: description,
+        soTien: soTien,
+        description: 'Thanh toán phụ cấp/thưởng',
+        date: DateFormat('yyyyMMdd').format(date),
+        dataJson: json.encode(bill),
+        employeeId: widget.employee!.id!,
+        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+      );
+      _databaseService.insertLog(log);
 
-    // cập nhật đã thanh toán
-    widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+      Bonus bonus = Bonus(
+        soTien: soTien,
+        description: description,
+        employeeId: widget.employee!.id!,
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        date: DateFormat('yyyyMMdd').format(date),
+      );
+      _databaseService.insertBonus(bonus);
 
-    _databaseService.updateEmployee(widget.employee!);
+      // cập nhật tổng đã thanh toán
+      widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+
+      _databaseService.updateEmployee(widget.employee!);
+    } else {
+
+      Bonus bonus = Bonus(
+        soTien: soTien,
+        description: description,
+        employeeId: widget.employee!.id!,
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        date: DateFormat('yyyyMMdd').format(date),
+      );
+
+      _databaseService.insertBonus(bonus);
+
+      Log log1 = Log(
+        day: date.day,
+        month: date.month,
+        year: date.year,
+        description: 'Phụ cấp/Thưởng',
+        descriptionOfUser: description,
+        soTien: soTien,
+        date: DateFormat('yyyyMMdd').format(date),
+        dataJson: json.encode(bonus),
+        employeeId: widget.employee!.id!,
+        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+      );
+      _databaseService.insertLog(log1);
+
+      widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan + soTien;
+      _databaseService.updateEmployee(widget.employee!);
+    }
+
+    widget.onReload();
     Navigator.pop(context);
   }
 
@@ -123,39 +170,6 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  TextField(
-                    controller:
-                        dateinput, //editing controller of this TextField
-                    decoration: const InputDecoration(
-                        icon: Icon(Icons.calendar_today), //icon of text field
-                        labelText: "Ngày thưởng/phụ cấp" //label text of field
-                        ),
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(
-                            2000), //DateTime.now() - not to allow to choose before today.
-                        lastDate: DateTime(2101),
-                        errorFormatText: 'Enter valid date',
-                        errorInvalidText: 'Enter date in valid range',
-                      );
-
-                      if (pickedDate != null) {
-                        String formattedDate =
-                            DateFormat('dd-MM-yyyy').format(pickedDate);
-                        setState(() {
-                          dateinput.text = formattedDate;
-                        });
-                      } else {
-                        var date = DateTime.now();
-                        var formattedDate =
-                            "${date.day}-${date.month}-${date.year}";
-                        dateinput.text = formattedDate;
-                        print("Date is not selected");
-                      }
-                    },
-                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -164,12 +178,6 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
                         value: daThanhToan,
                         onChanged: (value) {
                           setState(() {
-                            if (!daThanhToan) {
-                              _wageController.text = _formatNumber(
-                                  widget.employee!.chuaThanhToan.toString());
-                            } else {
-                              _wageController.text = _formatNumber('0');
-                            }
                             daThanhToan = value!;
                           });
                         },

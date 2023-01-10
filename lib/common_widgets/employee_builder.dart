@@ -6,6 +6,7 @@ import 'package:test123/models/employee.dart';
 
 import '../pages/employee_form_page.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 import 'employee_detail_builder.dart';
 
 class EmployeeBuilder extends StatefulWidget {
@@ -129,7 +130,9 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                                 .push(
                                   MaterialPageRoute(
                                     builder: (_) => EmployeeDetailBuilder(
-                                      employee: employee,
+                                      employee: employee, selectedDate: DateTime.now(), onReload: () {
+
+                                    },
                                     ),
                                     fullscreenDialog: true,
                                   ),

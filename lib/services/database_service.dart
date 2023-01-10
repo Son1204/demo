@@ -6,6 +6,7 @@ import 'package:test123/models/ky_cong.dart';
 import 'package:test123/models/up_level.dart';
 
 import '../models/bill.dart';
+import '../models/bonus.dart';
 import '../models/breed.dart';
 import '../models/dog.dart';
 import '../models/log.dart';
@@ -31,7 +32,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite31.db');
+    final path = join(databasePath, 'flutter_sqflite33.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -76,6 +77,8 @@ class DatabaseService {
           'dateTime TEXT, '
           'dataJson TEXT, '
           'employeeId INTEGER, '
+          'soTien INTEGER, '
+      'descriptionOfUser TEXT, '
           'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
       ')',
     );
@@ -97,6 +100,20 @@ class DatabaseService {
 
     await db.execute(
       'CREATE TABLE bill('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'soTien INTEGER, '
+          'employeeId INTEGER, '
+          'day INTEGER, '
+          'month INTEGER, '
+          'year INTEGER, '
+          'date TEXT, '
+          'description TEXT, '
+          'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
+      ')',
+    );
+
+    await db.execute(
+      'CREATE TABLE bonus('
           'id INTEGER PRIMARY KEY AUTOINCREMENT, '
           'soTien INTEGER, '
           'employeeId INTEGER, '
@@ -476,6 +493,17 @@ class DatabaseService {
     print('(insertBill)'+bill.toMap().toString());
   }
 
+  Future<void> insertBonus(Bonus bonus) async {
+    final db = await _databaseService.database;
+
+    await db.insert(
+      'bonus',
+      bonus.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+    print('(insertBonus)'+bonus.toMap().toString());
+  }
+
   Future<void> insertUpLevel(UpLevel upLevel) async {
     final db = await _databaseService.database;
 
@@ -497,6 +525,17 @@ class DatabaseService {
         where: 'month = ? and year=? and employeeId=? ',
         whereArgs: [dateTime.month, dateTime.year, employeeId]);
     return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
+  }
+
+  Future<List<Bonus>> findBonusByEmployeeAndDateTime(int employeeId, DateTime dateTime) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'bonus ',
+        where: 'month = ? and year=? and employeeId=? ',
+        whereArgs: [dateTime.month, dateTime.year, employeeId]);
+    return List.generate(maps.length, (index) => Bonus.fromMap(maps[index]));
   }
 
   Future<void> insertLog(Log log) async {
