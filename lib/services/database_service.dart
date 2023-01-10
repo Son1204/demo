@@ -283,11 +283,11 @@ class DatabaseService {
     return List.generate(maps.length, (index) => Employee.fromMap(maps[index]));
   }
 
-  Future<Breed> findEmployee(int id) async {
+  Future<Employee> findEmployee(int id) async {
     final db = await _databaseService.database;
     final List<Map<String, dynamic>> maps =
     await db.query('employee', where: 'id = ?', whereArgs: [id]);
-    return Breed.fromMap(maps[0]);
+    return Employee.fromMap(maps[0]);
   }
 
   Future<void> updateEmployee(Employee employee) async {

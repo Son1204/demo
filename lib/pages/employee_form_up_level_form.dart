@@ -74,7 +74,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       month: date.month,
       year: date.year,
       description: 'Điều chỉnh lương',
-      descriptionOfUser: description,
+      descriptionOfUser: description == '' ? 'Lương/ngày cũ: '+_formatNumber(widget.employee!.wageOld.toString())+', mới: ' : description+', '+'Lương/ngày cũ: '+_formatNumber(widget.employee!.wageOld.toString())+', mới: ',
       soTien: luongMoi,
       date: DateFormat('yyyyMMdd').format(DateTime.now()),
       dataJson: json.encode(upLevel),
@@ -90,15 +90,18 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
         print(chiTietKyCong);
         if (chiTietKyCong.chamCongNgay[0] == 1) {
           chiTietKyCong.thuNhapThucTe = luongMoi;
+          widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan + (luongMoi - widget.employee!.wageOld);
         } else if (chiTietKyCong.chamCongNgay[1] == 1 ||
             chiTietKyCong.chamCongNgay[2] == 1) {
           chiTietKyCong.thuNhapThucTe = (luongMoi / 2).round();
+          widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan + ((luongMoi / 2).round() - (widget.employee!.wageOld/2).round());
         }
         _databaseService.updateChiTietKyCong(chiTietKyCong);
       }
+      _databaseService.updateEmployee(widget.employee!);
+      widget.onReload();
     });
 
-    widget.onReload();
     Navigator.pop(context);
   }
 

@@ -57,6 +57,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
   double tongCongTrongThang = 0.0;
   int luongThang = 0;
   int soTienThuongPhuCap = 0;
+  // int soTienChuaThanhToan = 0;
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
@@ -74,6 +75,12 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
 
   void loadData() {
     print("(loadData)employee_detail_builder");
+    // _databaseService.findEmployee(widget.employee.id!).then((value) {
+    //   // Cập nhật chua thanh toan khi cần
+    //   soTienChuaThanhToan = value.chuaThanhToan;
+    //   setState(() {});
+    // });
+
     _databaseService.findLogsByEmployee(widget.employee.id!, 0).then((values) {
       log = values[0];
       setState(() {});
@@ -166,7 +173,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         onPressed: () {},
                         child: Text(
                           _formatNumber(
-                                  widget.employee.chuaThanhToan.toString()) +
+                              widget.employee.chuaThanhToan.toString()) +
                               ' đ',
                           style: const TextStyle(
                             fontSize: 18,
@@ -442,7 +449,8 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   .push(
                                     MaterialPageRoute(
                                       builder: (_) => EmployeeFormUpLevelPage(
-                                        employee: widget.employee, onReload: () {
+                                        employee: widget.employee,
+                                        onReload: () {
                                           loadData();
                                       },
                                       ),
