@@ -131,15 +131,34 @@ class _LogPage extends State<LogPage> {
                               const SizedBox(
                                 width: 20,
                               ),
-                              Text(list[index].description, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16,),),
+                              Text(
+                                list[index].description,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                                overflow: TextOverflow.visible,
+                              ),
                               const SizedBox(
                                 width: 20,
                               ),
-                              Text("Ghi chú: "+list[index].descriptionOfUser, style: const TextStyle(fontSize: 16,),),
+                              Text(
+                                "Ghi chú: " + list[index].descriptionOfUser,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                                overflow: TextOverflow.visible,
+                              ),
                               const SizedBox(
                                 width: 20,
                               ),
-                              Text(_formatNumber(list[index].soTien.toString())+'đ', style: const TextStyle(fontSize: 16,),),
+                              Text(
+                                _formatNumber(list[index].soTien.toString()) +
+                                    'đ',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
                             ],
                           ),
                         ],

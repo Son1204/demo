@@ -155,7 +155,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     print(selectedDate);
 
                     loadData();
-                  },
+                  }, monthSelected: widget.selectedDate.month,
                 ),
                 Container(
                   decoration: const BoxDecoration(
@@ -201,6 +201,17 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
                       ),
+                    ],
+                  ),
+                ),
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
                       const Text(
                         "Ứng trước: ",
                         style: TextStyle(

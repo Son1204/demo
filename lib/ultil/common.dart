@@ -164,8 +164,9 @@ void openPickerWithCustomPickerTextStyle(BuildContext context, DateTime dateTime
 }
 
 class MonthListView extends StatefulWidget {
-  const MonthListView({Key? key, required this.onReload}) : super(key: key);
+  const MonthListView({Key? key, required this.onReload, required this.monthSelected}) : super(key: key);
   final Function(dynamic) onReload;
+  final int monthSelected;
 
   @override
   _MonthListViewState createState() => _MonthListViewState();
@@ -175,6 +176,13 @@ class _MonthListViewState extends State<MonthListView> {
 
   final months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
   var monthActive = DateTime.now().month;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    monthActive = widget.monthSelected;
+  }
 
   @override
   Widget build(BuildContext context) {

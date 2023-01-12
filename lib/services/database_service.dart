@@ -9,6 +9,7 @@ import '../models/bill.dart';
 import '../models/bonus.dart';
 import '../models/breed.dart';
 import '../models/dog.dart';
+import '../models/google_sheet_config.dart';
 import '../models/log.dart';
 
 class DatabaseService {
@@ -32,7 +33,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite34.db');
+    final path = join(databasePath, 'flutter_sqflite35.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -573,6 +574,33 @@ class DatabaseService {
       log.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+  }
+
+  Future<void> insertConfigGoogleSheet(GoogleSheetConfig googleSheetConfig) async {
+
+    // Get a reference to the database.
+    final db = await _databaseService.database;
+
+    // Insert the Breed into the correct table. You might also specify the
+    // `conflictAlgorithm` to use in case the same breed is inserted twice.
+    //
+    // In this case, replace any previous data.
+    print(googleSheetConfig);
+    await db.insert(
+      'googlesheet',
+      googleSheetConfig.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<bool> checkConfigGoogleSheet(int month, int year) async {
+    final db = await _databaseService.database;
+
+    var result = await db.rawQuery(
+      'SELECT EXISTS(SELECT 1 FROM googlesheet WHERE month='+month.toString()+' and year='+year.toString()+' )',
+    );
+    int? exists = Sqflite.firstIntValue(result);
+    return exists == 1;
   }
 
   Future<List<Log>> findLogsByEmployee(int employeeId, int page) async {

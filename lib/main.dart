@@ -14,6 +14,7 @@ import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.
 import 'package:gsheets/gsheets.dart';
 import 'package:lazy_data_table/lazy_data_table.dart';
 import 'package:loadmore/loadmore.dart';
+import 'package:test123/models/google_sheet_config.dart';
 import 'package:test123/pages/excel_view_page.dart';
 
 
@@ -50,7 +51,6 @@ const _credentials = r'''
 const sheetId = '1I3KwQZFQGaSmj6J4DLRce1ZZdmQi4pdxkmOu8lCGxyY';
 
 void main() async {
-  final DatabaseService _databaseService = DatabaseService();
   final cron = Cron();
 
   cron.schedule(Schedule.parse('*/1 * * * *'), () async {
@@ -88,19 +88,7 @@ void main() async {
   // // // update cell at 'B2' by inserting string 'new'
   // await sheet.values.insertValue('new2345', column: 2, row: 2);
 
-  createRowDayOfMonth("NgayCong");
-  createRowDayOfMonth("Luong");
-  createRowDayOfMonth("Thuong/PhuCap");
-  createRowDayOfMonth("ThanhToan");
-  createRowDayOfMonth("DieuChinhLuong");
-
-  initFirsCol("NgayCong");
-  initFirsCol("Luong");
-  initFirsCol("Thuong/PhuCap");
-  initFirsCol("ThanhToan");
-  initFirsCol("DieuChinhLuong");
-
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 
@@ -188,11 +176,37 @@ class _OrientationListenerState extends State<OrientationListener>
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  MyApp({Key? key}) : super(key: key);
+
+  final DatabaseService _databaseService = DatabaseService();
+
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    print("reset app");
+    var currentDate = DateTime.now();
+    _databaseService.checkConfigGoogleSheet(currentDate.month, currentDate.year).then((value) {
+
+      print("INIT GOOGLE SHEET: "+value.toString());
+
+      if(value == false) {
+        print("CALL GOOGLE SHEET");
+        createRowDayOfMonth("NgayCong");
+        createRowDayOfMonth("Luong");
+        createRowDayOfMonth("Thuong/PhuCap");
+        createRowDayOfMonth("ThanhToan");
+        createRowDayOfMonth("DieuChinhLuong");
+
+        initFirsCol("NgayCong");
+        initFirsCol("Luong");
+        initFirsCol("Thuong/PhuCap");
+        initFirsCol("ThanhToan");
+        initFirsCol("DieuChinhLuong");
+        _databaseService.insertConfigGoogleSheet(GoogleSheetConfig(year: currentDate.year, month: currentDate.month));
+      }
+
+    });
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
