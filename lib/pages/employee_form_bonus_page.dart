@@ -7,6 +7,7 @@ import '../models/bonus.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 
 class EmployeeFormBonusPage extends StatefulWidget {
   const EmployeeFormBonusPage({Key? key, this.employee, required this.onReload}) : super(key: key);
@@ -55,7 +56,7 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
       // lưu thanh toán
       Bill bill = Bill(
         soTien: soTien,
-        description: description,
+        description: description == '' ? "Thưởng/Phụ cấp" : description,
         employeeId: widget.employee!.id!,
         day: date.day,
         month: date.month,
@@ -63,6 +64,8 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
         date: DateFormat('yyyyMMdd').format(date),
       );
       _databaseService.insertBill(bill);
+
+      updateGoogleSheetAndLog(soTien.toString()+","+(description==''?'Thưởng/Phụ cấp':description), widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
 
       Log log = Log(
         day: date.day,
@@ -94,6 +97,7 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
 
       _databaseService.updateEmployee(widget.employee!);
     } else {
+      updateGoogleSheetAndLog(soTien.toString()+","+(description==''?'Thưởng/Phụ cấp':description), widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
 
       Bonus bonus = Bonus(
         soTien: soTien,

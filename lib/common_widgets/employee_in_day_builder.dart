@@ -9,6 +9,7 @@ import 'package:test123/models/employee.dart';
 import 'package:test123/models/ky_cong.dart';
 
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 import 'employee_detail_builder.dart';
 
 class EmployeeInDayBuilder extends StatefulWidget {
@@ -86,11 +87,6 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
       future: _getEmployee(),
       initialData: const [],
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return const Center(
-        //     child: CircularProgressIndicator(),
-        //   );
-        // }
         if (snapshot.data!.isEmpty) {
           return const Center(
             child: Text("Chưa có nhân viên nào"),
@@ -268,8 +264,6 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                     dateTime: widget.dateTime,
                     onReload: () {
                       setState(() {});
-
-
                     },
                     needLoad: false,
                   );
@@ -531,6 +525,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       _chiTietKyCong.chamCongNgay[0] = 1;
                       print(
                           'CẢ NGÀY: ' + _chiTietKyCong.chamCongNgay.toString());
+
+                      updateGoogleSheet("Cả ngày", widget.employee.id! + 2, widget.dateTime.day + 1, "NgayCong");
+
                       var preThuNhapThucTe = _chiTietKyCong.thuNhapThucTe;
                       _chiTietKyCong.thuNhapThucTe = 0;
 
@@ -563,6 +560,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       }
                       _databaseService.updateEmployee(widget.employee);
                       _databaseService.updateChiTietKyCong(_chiTietKyCong);
+
+                      updateGoogleSheet(_chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.dateTime.day + 1, "Luong");
+
                       widget.onReload();
                     }),
                   ),
@@ -628,6 +628,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
 
                       print('BUỔI SÁNG: ' +
                           _chiTietKyCong.chamCongNgay.toString());
+                      updateGoogleSheet("Buổi sáng", widget.employee.id! + 2, widget.dateTime.day + 1, "NgayCong");
+                      updateGoogleSheet(_chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.dateTime.day + 1, "Luong");
+
                       widget.onReload();
                     }),
                   ),
@@ -689,6 +692,10 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
 
                       _databaseService.updateEmployee(widget.employee);
                       _databaseService.updateChiTietKyCong(_chiTietKyCong);
+
+                      updateGoogleSheet("Buổi chiều", widget.employee.id! + 2, widget.dateTime.day + 1, "NgayCong");
+                      updateGoogleSheet(_chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.dateTime.day + 1, "Luong");
+
                       widget.onReload();
                     }),
                   ),
@@ -731,6 +738,9 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                       _databaseService.updateChiTietKyCong(_chiTietKyCong);
 
                       print('NGHỈ: ' + _chiTietKyCong.chamCongNgay.toString());
+                      updateGoogleSheet("Nghỉ", widget.employee.id! + 2, widget.dateTime.day + 1, "NgayCong");
+                      updateGoogleSheet(0, widget.employee.id! + 2, widget.dateTime.day + 1, "Luong");
+
                       widget.onReload();
                     }),
                   ),

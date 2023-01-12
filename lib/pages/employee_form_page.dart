@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 
 class EmployeeFormPage extends StatefulWidget {
   const EmployeeFormPage({Key? key, this.employee}) : super(key: key);
@@ -50,6 +51,12 @@ class _EmployeeFormPage extends State<EmployeeFormPage> {
             dateUpLevel: DateFormat('yyyyMMdd').format(DateTime.now()),
           )).then((employeeId) {
       var date = DateTime.now();
+
+      updateGoogleSheet(name, employeeId + 2, 1, "NgayCong");
+      updateGoogleSheet(name, employeeId + 2, 1, "Luong");
+      updateGoogleSheet(name, employeeId + 2, 1, "Thuong/PhuCap");
+      updateGoogleSheet(name, employeeId + 2, 1, "ThanhToan");
+      updateGoogleSheet(name, employeeId + 2, 1, "DieuChinhLuong");
 
       Log log = Log(
         day: date.day,

@@ -12,6 +12,7 @@ import 'package:bottom_navy_bar/bottom_navy_bar.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:gsheets/gsheets.dart';
+import 'package:lazy_data_table/lazy_data_table.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:test123/pages/excel_view_page.dart';
 
@@ -23,6 +24,7 @@ import 'models/employee.dart';
 import 'pages/home_page.dart';
 import 'package:cron/cron.dart';
 
+import 'pages/table_view_page.dart';
 import 'services/database_service.dart';
 import 'ultil/common.dart';
 
@@ -75,17 +77,62 @@ void main() async {
   });
 
   // final gsheets = GSheets(_credentials);
-  // // fetch spreadsheet by its id
+  // // // fetch spreadsheet by its id
   // final ss = await gsheets.spreadsheet(sheetId);
-  //
-  // // get worksheet by its title
+  // //
+  // // // get worksheet by its title
   // var sheet = ss.worksheetByTitle('example');
-  // // create worksheet if it does not exist yet
+  // // // create worksheet if it does not exist yet
   // sheet ??= await ss.addWorksheet('example');
-  //
-  // // update cell at 'B2' by inserting string 'new'
-  // await sheet.values.insertValue('new', column: 2, row: 2);
+  // //
+  // // // update cell at 'B2' by inserting string 'new'
+  // await sheet.values.insertValue('new2345', column: 2, row: 2);
+
+  createRowDayOfMonth("NgayCong");
+  createRowDayOfMonth("Luong");
+  createRowDayOfMonth("Thuong/PhuCap");
+  createRowDayOfMonth("ThanhToan");
+  createRowDayOfMonth("DieuChinhLuong");
+
+  initFirsCol("NgayCong");
+  initFirsCol("Luong");
+  initFirsCol("Thuong/PhuCap");
+  initFirsCol("ThanhToan");
+  initFirsCol("DieuChinhLuong");
+
   runApp(const MyApp());
+}
+
+
+class LandingPage extends StatefulWidget {
+
+  const LandingPage({Key? key}) : super(key: key);
+
+  @override
+  _LandingPageState createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: LazyDataTable(
+        rows: 100,
+        columns: 100,
+        tableDimensions: LazyDataTableDimensions(
+          cellHeight: 50,
+          cellWidth: 100,
+          topHeaderHeight: 50,
+          leftHeaderWidth: 75,
+        ),
+        topHeaderBuilder: (i) => Center(child: Text("Column: ${i + 1}")),
+        leftHeaderBuilder: (i) => Center(child: Text("Rowhbhbhbhbhbhbhbhbhbhbh: ${i + 1}")),
+        dataCellBuilder: (i, j) => Center(child: Text("Celln hd n d j dn fn : $i, $j")),
+        topLeftCornerWidget: Center(child: Text("Corner")),
+      ),
+    );
+  }
 }
 
 class OrientationListener extends StatefulWidget {
@@ -152,7 +199,7 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.blue,
       ),
       title: 'Flutter Clean Calendar Demo',
-      home: MyNevBar(),
+      home: const MyNevBar(),
     );
   }
 }
@@ -506,6 +553,7 @@ class _MyNevBarState extends State<MyNevBar> {
   List listOfColors = [
     const CalendarScreen(),
     const EmployeeBuilder(),
+    const SimpleTablePage(),
   ];
 
   @override
@@ -530,9 +578,9 @@ class _MyNevBarState extends State<MyNevBar> {
       // ),
       body: SafeArea(child: listOfColors[currentIndex],),
       bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.only(bottom: 10),
         child: DotNavigationBar(
-          margin: EdgeInsets.only(left: 10, right: 10),
+          margin: const EdgeInsets.only(left: 10, right: 10),
           currentIndex: currentIndex,
           dotIndicatorColor: Colors.white,
           unselectedItemColor: Colors.grey[300],
@@ -546,18 +594,18 @@ class _MyNevBarState extends State<MyNevBar> {
           items: [
             /// Home
             DotNavigationBarItem(
-              icon: Icon(Icons.home),
-              selectedColor: Color(0xff73544C),
+              icon: const Icon(Icons.home),
+              selectedColor: const Color(0xff73544c),
             ),
 
             DotNavigationBarItem(
-              icon: Icon(Icons.person),
-              selectedColor: Color(0xff73544C),
+              icon: const Icon(Icons.person, size: 24,),
+              selectedColor: const Color(0xff73544C),
             ),
 
             DotNavigationBarItem(
-              icon: Icon(Icons.file_copy),
-              selectedColor: Color(0xff73544C),
+              icon: const Icon(Icons.file_copy),
+              selectedColor: const Color(0xff73544C),
             ),
 
           ],

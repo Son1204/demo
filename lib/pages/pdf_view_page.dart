@@ -25,8 +25,9 @@ import 'dart:io';
 import 'package:flutter_file_view/flutter_file_view.dart';
 
 class PdfViewPage extends StatefulWidget {
-  const PdfViewPage({Key? key, required this.employee}) : super(key: key);
+  const PdfViewPage({Key? key, required this.employee, required this.selectedDate}) : super(key: key);
   final Employee employee;
+  final DateTime selectedDate;
 
   @override
   _PdfViewPage createState() => _PdfViewPage();
@@ -54,13 +55,13 @@ class _PdfViewPage extends State<PdfViewPage> {
       DeviceOrientation.portraitUp,
     ]);
       _databaseService
-          .findKyCongIdByEmployeeAndDateTime(widget.employee.id!, dateTime)
+          .findKyCongIdByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate)
           .then((kyCong) {
         _databaseService
             .findChiTietKyCongByKyCongId(kyCong.id!)
             .then((chiTietKyCongs) {
           _databaseService
-              .findBillsByEmployeeAndDateTime(widget.employee.id!, dateTime)
+              .findBillsByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate)
               .then((bills) async {
             print("PDF");
             //Create a PDF document.
@@ -99,7 +100,7 @@ class _PdfViewPage extends State<PdfViewPage> {
 
             PdfLayoutResult resultTitleWage = PdfTextElement(
                 text:
-                "Ngày công trong tháng " + DateFormat("MM/yyyy").format(DateTime.now())+ ': ',
+                "Ngày công trong tháng " + DateFormat("MM/yyyy").format(widget.selectedDate)+ ': ',
                 font: font)
                 .draw(
                 page: resultHeader.page,
@@ -128,7 +129,7 @@ class _PdfViewPage extends State<PdfViewPage> {
 
             PdfLayoutResult resultTitleTotalWage = PdfTextElement(
                 text: 'Tổng hợp ngày công tháng ' +
-                    DateFormat("MM/yyyy").format(DateTime.now())+': ' +
+                    DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
                     soCongTrongThang.toString() +
                     ' công',
                 font: font)
@@ -144,7 +145,7 @@ class _PdfViewPage extends State<PdfViewPage> {
 
             PdfLayoutResult resultTitleTotal = PdfTextElement(
                 text: 'Lương và các khoản thanh toán tháng ' +
-                    DateFormat("MM/yyyy").format(DateTime.now())+': ',
+                    DateFormat("MM/yyyy").format(widget.selectedDate)+': ',
                 font: font)
                 .draw(
                 page: resultGetTotalWage.page,
@@ -153,7 +154,7 @@ class _PdfViewPage extends State<PdfViewPage> {
 
             PdfLayoutResult resultTitleTotalMonth = PdfTextElement(
                 text: 'Lương tháng ' +
-                    DateFormat("MM/yyyy").format(DateTime.now())+': ' +
+                    DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
                     _formatNumber(luongThang.toString()) +
                     ' vnđ',
                 font: font)
@@ -162,16 +163,25 @@ class _PdfViewPage extends State<PdfViewPage> {
                 bounds: Rect.fromLTWH(
                     10, resultTitleTotal.bounds.bottom + 5, 0, 0))!;
 
+            var totalNeedPayMoney = 0;
+            await _databaseService.findBonusByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
+              for (var value in values) {
+                totalNeedPayMoney = totalNeedPayMoney + value.soTien;
+              }
+            });
+
+            totalNeedPayMoney = totalNeedPayMoney + luongThang;
+
             PdfLayoutResult totalNeedPay = PdfTextElement(
-                text: 'Số tiền cần phải trả: todo' +
-                    DateFormat("MM/yyyy").format(DateTime.now())+': ' +
-                    _formatNumber(luongThang.toString()) +
+                text: 'Số tiền cần phải trả: ' +
+                    DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
+                    _formatNumber(totalNeedPayMoney.toString()) +
                     'vnđ',
                 font: font)
                 .draw(
-                page: resultTitleTotal.page,
+                page: resultTitleTotalMonth.page,
                 bounds: Rect.fromLTWH(
-                    10, resultTitleTotal.bounds.bottom + 5, 0, 0))!;
+                    10, resultTitleTotalMonth.bounds.bottom + 5, 0, 0))!;
 
             if(bills.isEmpty) {
               PdfTextElement(text: 'Chưa thanh toán', font: fontRe).draw(
@@ -180,10 +190,51 @@ class _PdfViewPage extends State<PdfViewPage> {
                 Rect.fromLTWH(15, totalNeedPay.bounds.bottom + 10, 0, 0),
               );
             } else {
+              var totalPayedMoney = 0;
+              await _databaseService.findBillsByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
+                for (var element in values) {
+                  totalPayedMoney = totalPayedMoney + element.soTien;
+                }
+              });
+              PdfLayoutResult totalPayed = PdfTextElement(
+                  text: 'Đã thanh toán ' +
+                      DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
+                      _formatNumber(totalPayedMoney.toString()) +
+                      'vnđ',
+                  font: font)
+                  .draw(
+                  page: totalNeedPay.page,
+                  bounds: Rect.fromLTWH(
+                      10, totalNeedPay.bounds.bottom + 5, 0, 0))!;
+
+              var remainNeedPay = totalNeedPayMoney - totalPayedMoney;
+
+              PdfLayoutResult remain = PdfTextElement(
+                  text: 'Còn nợ lương ' +
+                      DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
+                      _formatNumber(remainNeedPay < 0 ? "0" : remainNeedPay.toString()) +
+                      'vnđ',
+                  font: font)
+                  .draw(
+                  page: totalPayed.page,
+                  bounds: Rect.fromLTWH(
+                      10, totalPayed.bounds.bottom + 5, 0, 0))!;
+
+              PdfLayoutResult cashAdvance = PdfTextElement(
+                  text: 'Ứng trước ' +
+                      DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
+                      _formatNumber(remainNeedPay >= 0 ? "0" : (remainNeedPay * -1).toString()) +
+                      'vnđ',
+                  font: font)
+                  .draw(
+                  page: remain.page,
+                  bounds: Rect.fromLTWH(
+                      10, remain.bounds.bottom + 5, 0, 0))!;
+
               getTotal(bills).draw(
-                page: totalNeedPay.page,
+                page: cashAdvance.page,
                 bounds:
-                Rect.fromLTWH(0, totalNeedPay.bounds.bottom + 10, 0, 0),
+                Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
               );
             }
 
@@ -194,11 +245,11 @@ class _PdfViewPage extends State<PdfViewPage> {
             document.dispose();
             //Save and launch the file.
             final path = (await getExternalStorageDirectory())?.path;
-            final file = File('$path/Report.pdf');
+            final file = File('$path/Report'+DateFormat("dd-MM-yyy").format(DateTime.now())+'.pdf');
             await file.writeAsBytes(bytes, flush: true);
 
             // TODO: SONCT
-            localPath = path!+'/Report.pdf';
+            localPath = path!+'/Report'+DateFormat("dd-MM-yyy").format(DateTime.now())+'.pdf';
             setState(() {
 
             });
@@ -214,7 +265,7 @@ class _PdfViewPage extends State<PdfViewPage> {
           ? PDFView(
         filePath: localPath,
       )
-          : const Center(child: CircularProgressIndicator()),
+          : const Center(child: Text("Chưa có dữ liệu")),
     );
   }
 }

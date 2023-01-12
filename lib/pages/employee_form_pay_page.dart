@@ -7,6 +7,7 @@ import '../common_widgets/confirm_builder.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 
 class EmployeeFormPayPage extends StatefulWidget {
   const EmployeeFormPayPage({Key? key, this.employee, required this.onReload}) : super(key: key);
@@ -51,10 +52,23 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
     
     if (await confirm(context, title: Text('Đồng ý thanh toán: '+_formatNumber(soTien.toString())+'đ cho nhân viên: '+widget.employee!.name))) {
 
+
+      var buildMessage = soTien.toString();
+
+      if(description == ''){
+        buildMessage = buildMessage + ","+"Trả lương";
+      }else {
+        buildMessage = buildMessage + ","+description;
+      }
+
+      print(buildMessage);
+
+      updateGoogleSheetAndLog(buildMessage, widget.employee!.id! + 2, date.day + 1, "ThanhToan");
+
       // lưu thanh toán
       Bill bill = Bill(
         soTien: soTien,
-        description: description,
+        description: description == ''?"Thanh toán lương":description,
         employeeId: widget.employee!.id!,
         day: date.day,
         month: date.month,
@@ -154,39 +168,6 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  TextField(
-                    controller:
-                        dateinput, //editing controller of this TextField
-                    decoration: const InputDecoration(
-                        icon: Icon(Icons.calendar_today), //icon of text field
-                        labelText: "Ngày thanh toán" //label text of field
-                        ),
-                    onTap: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime(
-                            2000), //DateTime.now() - not to allow to choose before today.
-                        lastDate: DateTime(2101),
-                        errorFormatText: 'Enter valid date',
-                        errorInvalidText: 'Enter date in valid range',
-                      );
-
-                      if (pickedDate != null) {
-                        String formattedDate =
-                            DateFormat('dd-MM-yyyy').format(pickedDate);
-                        setState(() {
-                          dateinput.text = formattedDate;
-                        });
-                      } else {
-                        var date = DateTime.now();
-                        var formattedDate =
-                            "${date.day}-${date.month}-${date.year}";
-                        dateinput.text = formattedDate;
-                        print("Date is not selected");
-                      }
-                    },
-                  ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,

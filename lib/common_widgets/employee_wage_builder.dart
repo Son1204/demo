@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:test123/models/chi_tiet_ky_cong.dart';
 import 'package:test123/models/employee.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 
 class EmployeeWageBuilder extends StatefulWidget {
   const EmployeeWageBuilder({Key? key, required this.employee, required this.selectedDate, required this.onReload})
@@ -36,7 +37,7 @@ class _EmployeeWageBuilder extends State<EmployeeWageBuilder> {
         NumberFormat.decimalPattern('vi').format(int.parse(s));
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nhân viên: ' + widget.employee.name),
+        title: Text('Tổng hợp ngày công: ' + widget.employee.name),
         centerTitle: true,
       ),
       body: FutureBuilder<List<ChiTietKyCong>>(
@@ -366,6 +367,10 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
 
                   _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
+                  updateGoogleSheet(widget.chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.selectedDate.day + 1, "Luong");
+                  updateGoogleSheet("Cả ngày", widget.employee.id! + 2, widget.selectedDate.day + 1, "NgayCong");
+
                   widget.onReload();
                 }),
               ),
@@ -432,6 +437,9 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
 
                   _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
+                  updateGoogleSheet(widget.chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.selectedDate.day + 1, "Luong");
+                  updateGoogleSheet("Buổi sáng", widget.employee.id! + 2, widget.selectedDate.day + 1, "NgayCong");
 
                   print('BUỔI SÁNG: ' +
                       widget.chiTietKyCong.chamCongNgay.toString());
@@ -501,6 +509,9 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
                   _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
 
+                  updateGoogleSheet(widget.chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.selectedDate.day + 1, "Luong");
+                  updateGoogleSheet("Buổi chiều", widget.employee.id! + 2, widget.selectedDate.day + 1, "NgayCong");
+
                   print('BUỔI CHIỀU: ' +
                       widget.chiTietKyCong.chamCongNgay.toString());
                   widget.onReload();
@@ -542,6 +553,9 @@ class _BuildChiTietKyCongCard extends State<BuildChiTietKyCongCard> {
 
                   _databaseService.updateEmployee(widget.employee);
                   _databaseService.updateChiTietKyCong(widget.chiTietKyCong);
+
+                  updateGoogleSheet(widget.chiTietKyCong.thuNhapThucTe, widget.employee.id! + 2, widget.selectedDate.day + 1, "Luong");
+                  updateGoogleSheet("Nghỉ", widget.employee.id! + 2, widget.selectedDate.day + 1, "NgayCong");
 
                   print('NGHỈ: ' + widget.chiTietKyCong.chamCongNgay.toString());
                   widget.onReload();

@@ -50,10 +50,13 @@ dependencies:
   flutter_json_viewer: ^1.0.1
   excel: 2.0.0-null-safety
   flutter_pdfview: ^1.2.1
-  horizontal_data_table: ^4.1.4
+#  horizontal_data_table: ^4.1.2-debug
   quiver: ^3.0.0
   bottom_picker: ^2.0.1
   pdf: ^3.8.4
+#  table_sticky_headers: /^2.0.5
+  lazy_data_table: ^0.3.1
+  flex_grid: ^5.0.3
 
 
   # The following adds the Cupertino Icons font to your application.

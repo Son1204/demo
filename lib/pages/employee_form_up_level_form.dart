@@ -6,6 +6,7 @@ import 'package:test123/models/log.dart';
 import 'package:test123/models/up_level.dart';
 import '../models/employee.dart';
 import '../services/database_service.dart';
+import '../ultil/common.dart';
 
 class EmployeeFormUpLevelPage extends StatefulWidget {
   const EmployeeFormUpLevelPage({Key? key, this.employee, required this.onReload}) : super(key: key);
@@ -82,6 +83,9 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
       dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
     );
     _databaseService.insertLog(log);
+
+    updateGoogleSheetAndLog('Lương/ngày mới:'+luongMoi.toString()+",Lương/ngày cũ:"+widget.employee!.wageOld.toString()+",Ngày áp dụng: "+DateFormat('yyyyMMdd').format(date)+","+description, widget.employee!.id! + 2, date.day + 1, "DieuChinhLuong");
+
     // TODO: cập nhật những ngày công từ ngày tăng lương
     _databaseService
         .findChiTietKyCongsByEmployeeIdAndDateTime(widget.employee!.id!, DateFormat('yyyyMMdd').format(date))
@@ -96,6 +100,9 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
           chiTietKyCong.thuNhapThucTe = (luongMoi / 2).round();
           widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan + ((luongMoi / 2).round() - (widget.employee!.wageOld/2).round());
         }
+
+        updateGoogleSheet(chiTietKyCong.thuNhapThucTe, widget.employee!.id! + 2, chiTietKyCong.day + 1, "Luong");
+
         _databaseService.updateChiTietKyCong(chiTietKyCong);
       }
       _databaseService.updateEmployee(widget.employee!);
@@ -171,7 +178,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
                         _dateController, //editing controller of this TextField
                     decoration: const InputDecoration(
                       icon: Icon(Icons.calendar_today), //icon of text field
-                      labelText: "Ngày tăng lương", //label text of field
+                      labelText: "Ngày áp dụng", //label text of field
                     ),
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(

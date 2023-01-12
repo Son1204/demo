@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:horizontal_data_table/horizontal_data_table.dart';
-import 'package:test123/models/employee.dart';
 import '../services/database_service.dart';
 import 'package:quiver/time.dart';
 
 class SimpleTablePage extends StatefulWidget {
-  SimpleTablePage({
-    Key? key, required this.employee,
+  const SimpleTablePage({
+    Key? key,
   }) : super(key: key);
 
-  final Employee employee;
 
   @override
   _SimpleTablePageState createState() => _SimpleTablePageState();
@@ -39,22 +36,22 @@ class _SimpleTablePageState extends State<SimpleTablePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Simple Table')),
-      body: HorizontalDataTable(
-        leftHandSideColumnWidth: 100,
-        rightHandSideColumnWidth: 600,
-        isFixedHeader: true,
-        headerWidgets: _getTitleWidget(),
-        leftSideItemBuilder: _generateFirstColumnRow,
-        rightSideItemBuilder: _generateRightHandSideColumnRow,
-        itemCount: user.length,
-        rowSeparatorWidget: const Divider(
-          color: Colors.black54,
-          height: 1.0,
-          thickness: 0.0,
-        ),
-        leftHandSideColBackgroundColor: const Color(0xFFFFFFFF),
-        rightHandSideColBackgroundColor: const Color(0xFFFFFFFF),
-      ),
+      // body: HorizontalDataTable(
+      //   leftHandSideColumnWidth: 100,
+      //   rightHandSideColumnWidth: 600,
+      //   isFixedHeader: true,
+      //   headerWidgets: _getTitleWidget(),
+      //   leftSideItemBuilder: _generateFirstColumnRow,
+      //   rightSideItemBuilder: _generateRightHandSideColumnRow,
+      //   itemCount: user.length,
+      //   rowSeparatorWidget: const Divider(
+      //     color: Colors.black54,
+      //     height: 1.0,
+      //     thickness: 0.0,
+      //   ),
+      //   leftHandSideColBackgroundColor: const Color(0xFFFFFFFF),
+      //   rightHandSideColBackgroundColor: const Color(0xFFFFFFFF),
+      // ),
     );
   }
 
@@ -119,7 +116,7 @@ class _SimpleTablePageState extends State<SimpleTablePage> {
 
   Widget _generateRightHandSideColumnRow(BuildContext context, int index) {
 
-  _databaseService.findChiTietKyCongByEmployeeAndDate(widget.employee.id!, DateTime.now()).then((values) {
+  _databaseService.findChiTietKyCongByEmployeeAndDate(user[index].id!, DateTime.now()).then((values) {
 
 
 

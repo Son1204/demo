@@ -169,13 +169,62 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                           fontSize: 16,
                         ),
                       ),
-                      TextButton(
+                      widget.employee.chuaThanhToan >= 0 ? TextButton(
                         onPressed: () {},
                         child: Text(
                           _formatNumber(
                               widget.employee.chuaThanhToan.toString()) +
                               ' đ',
                           style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.all(10),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ) : TextButton(
+                        onPressed: () {},
+                        child: const Text('0đ',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.all(10),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      const Text(
+                        "Ứng trước: ",
+                        style: TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      widget.employee.chuaThanhToan < 0 ? TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          _formatNumber(
+                              (widget.employee.chuaThanhToan * -1).toString()) +
+                              ' đ',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          minimumSize: Size.zero,
+                          padding: const EdgeInsets.all(10),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ) : TextButton(
+                        onPressed: () {},
+                        child: const Text('0đ',
+                          style: TextStyle(
                             fontSize: 18,
                             color: Colors.redAccent,
                           ),
@@ -417,6 +466,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                     MaterialPageRoute(
                                       builder: (_) => PdfViewPage(
                                         employee: widget.employee,
+                                        selectedDate: widget.selectedDate,
                                       ),
                                       fullscreenDialog: true,
                                     ),
