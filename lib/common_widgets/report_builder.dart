@@ -11,6 +11,7 @@ import 'dart:io';
 import 'package:flutter_file_view/flutter_file_view.dart';
 import 'package:test123/models/bill.dart';
 import 'package:test123/models/employee.dart';
+import 'package:test123/models/up_level.dart';
 
 import '../models/chi_tiet_ky_cong.dart';
 import '../services/database_service.dart';
@@ -369,6 +370,66 @@ PdfGrid getTotal(List<Bill> bills) {
   }
   return grid;
 }
+
+PdfGrid getUpLevel(List<UpLevel> upLevels) {
+  //Create a PDF grid
+  final Uint8List fontData =
+  File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
+      .readAsBytesSync();
+//Create a PDF true type font object.
+  final PdfFont font = PdfTrueTypeFont(fontData, 18);
+
+  final PdfGrid grid = PdfGrid();
+  //Secify the columns count to the grid.
+  grid.columns.add(count: 3);
+  //Create the header row of the grid.
+  final PdfGridRow headerRow = grid.headers.add(1)[0];
+
+  headerRow.style.font = font;
+
+  //Set style
+  headerRow.cells[0].value = 'Lương/Ngày cũ';
+  headerRow.cells[0].stringFormat.alignment = PdfTextAlignment.center;
+  headerRow.cells[1].value = 'Lương/Ngày mới';
+  headerRow.cells[1].stringFormat.alignment = PdfTextAlignment.center;
+  headerRow.cells[2].value = 'Ngày áp dụng';
+  headerRow.cells[2].stringFormat.alignment = PdfTextAlignment.center;
+
+  //Add rows
+  for (var element in upLevels) {
+    addDayWage(
+      _formatNumber(element.wageOld.toString()),
+      _formatNumber(element.wageNew.toString()),
+      DateFormat("dd/MM/yyyy").format(DateTime(element.year, element.month, element.day)),
+      grid,
+    );
+  }
+
+  //Apply the table built-in style
+  //Set gird columns width
+  for (int i = 0; i < headerRow.cells.count; i++) {
+    headerRow.cells[i].style.cellPadding = PdfPaddings(
+      bottom: 5,
+      left: 5,
+      right: 5,
+      top: 5,
+    );
+  }
+  for (int i = 0; i < grid.rows.count; i++) {
+    final PdfGridRow row = grid.rows[i];
+    for (int j = 0; j < row.cells.count; j++) {
+      final PdfGridCell cell = row.cells[j];
+      cell.style.cellPadding = PdfPaddings(
+        bottom: 5,
+        left: 5,
+        right: 5,
+        top: 5,
+      );
+    }
+  }
+  return grid;
+}
+
 
 PdfGrid getTotalWage(List<ChiTietKyCong> chiTietKyCongs) {
   //Create a PDF grid

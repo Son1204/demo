@@ -32,7 +32,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite33.db');
+    final path = join(databasePath, 'flutter_sqflite34.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -60,6 +60,7 @@ class DatabaseService {
           'chuaThanhToan INTEGER, '
           'tongTienChuaThanhToan INTEGER, '
           'tongThuNhap INTEGER, '
+          'removed INTEGER, '
           'description TEXT, '
       'wageOld INTEGER, '
       'dateUpLevel TEXT'
@@ -123,6 +124,14 @@ class DatabaseService {
           'date TEXT, '
           'description TEXT, '
           'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '
+      ')',
+    );
+
+    await db.execute(
+      'CREATE TABLE googlesheet('
+          'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+          'month INTEGER, '
+          'year INTEGER '
       ')',
     );
 
@@ -278,7 +287,7 @@ class DatabaseService {
   Future<List<Employee>> findAllEmployees() async {
     final db = await _databaseService.database;
 
-    final List<Map<String, dynamic>> maps = await db.query('employee');
+    final List<Map<String, dynamic>> maps = await db.query('employee', where: 'removed = 0');
 
     return List.generate(maps.length, (index) => Employee.fromMap(maps[index]));
   }
@@ -525,6 +534,17 @@ class DatabaseService {
         where: 'month = ? and year=? and employeeId=? ',
         whereArgs: [dateTime.month, dateTime.year, employeeId]);
     return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
+  }
+
+  Future<List<UpLevel>> findUpLevelByEmployeeAndDateTime(int employeeId, DateTime dateTime) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'uplevel ',
+        where: 'month = ? and year=? and employeeId=? ',
+        whereArgs: [dateTime.month, dateTime.year, employeeId]);
+    return List.generate(maps.length, (index) => UpLevel.fromMap(maps[index]));
   }
 
   Future<List<Bonus>> findBonusByEmployeeAndDateTime(int employeeId, DateTime dateTime) async {

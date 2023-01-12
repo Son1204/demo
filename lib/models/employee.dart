@@ -7,6 +7,7 @@ class Employee {
   int wageOld;
   final String description;
   int daThanhToan;
+  int removed;
   int chuaThanhToan;
   int tongTienChuaThanhToan;
   String dateUpLevel; // su dung filter
@@ -31,6 +32,7 @@ class Employee {
       this.tongThuNhap,
       this.wageOld = 0,
       this.dateUpLevel = '',
+        this.removed = 0
       });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
@@ -47,6 +49,7 @@ class Employee {
       'daThanhToan': daThanhToan,
       'wageOld': wageOld,
       'dateUpLevel': dateUpLevel,
+      'removed': removed
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -64,6 +67,7 @@ class Employee {
       daThanhToan: map['daThanhToan']?.toInt() ?? 0,
       wageOld: map['wageOld']?.toInt() ?? 0,
       dateUpLevel: map['dateUpLevel'],
+        removed: map['removed']?.toInt() ?? 0,
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }

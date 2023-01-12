@@ -48,7 +48,9 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
   );
 
   Future<void> _onDeleteEmployee() async {
-    _databaseService.deleteEmployee(widget.employee.id!);
+    print("(_onDeleteEmployee)employeeId: " + widget.employee.id.toString());
+    widget.employee.removed = 1;
+    _databaseService.updateEmployee(widget.employee);
 
     Navigator.pop(context);
   }

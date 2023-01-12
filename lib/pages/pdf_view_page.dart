@@ -183,8 +183,10 @@ class _PdfViewPage extends State<PdfViewPage> {
                 bounds: Rect.fromLTWH(
                     10, resultTitleTotalMonth.bounds.bottom + 5, 0, 0))!;
 
+            PdfLayoutResult? pageBill = null;
+
             if(bills.isEmpty) {
-              PdfTextElement(text: 'Chưa thanh toán', font: fontRe).draw(
+              pageBill = PdfTextElement(text: 'Chưa có khoản thanh toán nào', font: fontRe).draw(
                 page: totalNeedPay.page,
                 bounds:
                 Rect.fromLTWH(15, totalNeedPay.bounds.bottom + 10, 0, 0),
@@ -231,12 +233,30 @@ class _PdfViewPage extends State<PdfViewPage> {
                   bounds: Rect.fromLTWH(
                       10, remain.bounds.bottom + 5, 0, 0))!;
 
-              getTotal(bills).draw(
+              pageBill = getTotal(bills).draw(
                 page: cashAdvance.page,
                 bounds:
                 Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
               );
             }
+
+            await _databaseService.findUpLevelByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
+
+              PdfLayoutResult changeWage = PdfTextElement(
+                  text: 'Điều chỉnh lương ' +
+                      DateFormat("MM/yyyy").format(widget.selectedDate)+':',
+                  font: font)
+                  .draw(
+                  page: pageBill!.page,
+                  bounds: Rect.fromLTWH(
+                      10, pageBill.bounds.bottom + 10, 0, 0))!;
+
+              getUpLevel(values).draw(
+                page: changeWage.page,
+                bounds:
+                Rect.fromLTWH(0, changeWage.bounds.bottom + 10, 0, 0),
+              );
+            });
 
 
             //Save the PDF document

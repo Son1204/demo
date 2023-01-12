@@ -144,6 +144,7 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                             children: [
                               Text(
                                 employee.name,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 21.0,
                                   fontWeight: FontWeight.bold,
@@ -153,6 +154,7 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                               const SizedBox(height: 4.0),
                               Text(
                                 employee.description,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
                                   fontSize: 16.0,
                                 ),
