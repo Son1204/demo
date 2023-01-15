@@ -7,20 +7,20 @@ import '../pages/employee_form_page.dart';
 import '../services/database_service.dart';
 import 'employee_detail_builder.dart';
 
-class EmployeeBuilder extends StatefulWidget {
-  const EmployeeBuilder({
+class EmployeeBuilderDeActive extends StatefulWidget {
+  const EmployeeBuilderDeActive({
     Key? key,
   }) : super(key: key);
 
   @override
-  _EmployeeBuilder createState() => _EmployeeBuilder();
+  _EmployeeBuilderDeActive createState() => _EmployeeBuilderDeActive();
 }
 
-class _EmployeeBuilder extends State<EmployeeBuilder> {
+class _EmployeeBuilderDeActive extends State<EmployeeBuilderDeActive> {
   final DatabaseService _databaseService = DatabaseService();
 
   Future<List<Employee>> _getEmployee() async {
-    return await _databaseService.findAllEmployees(0);
+    return await _databaseService.findAllEmployees(1);
   }
 
   String _formatNumber(String s) =>
@@ -31,54 +31,21 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Danh sách nhân viên'),
+        title: const Text('Nhân viên đã nghỉ việc'),
         centerTitle: true,
       ),
       body: FutureBuilder<List<Employee>>(
         future: _getEmployee(),
+        initialData: const [],
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if(snapshot.data!.isEmpty) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text("Không có dữ liệu"),
             );
           }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context)
-                      .push(
-                        MaterialPageRoute(
-                          builder: (context) => const EmployeeFormPage(),
-                        ),
-                      )
-                      .then((context) => setState(() {}));
-                },
-                child: Container(
-                  height: 45.0,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    color: Colors.grey[200],
-                  ),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      FaIcon(FontAwesomeIcons.userPlus),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text("Thêm nhân viên"),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -110,13 +77,13 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                 onTap: () {
                   Navigator.of(context)
                       .push(
-                        MaterialPageRoute(
-                          builder: (_) => EmployeeDetailBuilder(
-                            employee: employee, selectedDate: DateTime.now(), onReload: () {},
-                          ),
-                          fullscreenDialog: true,
-                        ),
-                      )
+                    MaterialPageRoute(
+                      builder: (_) => EmployeeDetailBuilder(
+                        employee: employee, selectedDate: DateTime.now(), onReload: () {},
+                      ),
+                      fullscreenDialog: true,
+                    ),
+                  )
                       .then((_) => setState(() {}));
                 },
                 child: Column(
@@ -178,7 +145,7 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                         const Text('Đã thanh toán: '),
                         Text(
                           _formatNumber(
-                                  employee.daThanhToan.toString()) +
+                              employee.daThanhToan.toString()) +
                               " VNĐ",
                           style: const TextStyle(
                             fontSize: 16.0,
@@ -194,7 +161,7 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
                         const Text('Chưa thanh toán: '),
                         Text(
                           _formatNumber(
-                                  employee.chuaThanhToan.toString()) +
+                              employee.chuaThanhToan.toString()) +
                               " VNĐ",
                           style: const TextStyle(
                             fontSize: 16.0,
@@ -213,4 +180,5 @@ class _EmployeeBuilder extends State<EmployeeBuilder> {
       ),
     );
   }
+
 }

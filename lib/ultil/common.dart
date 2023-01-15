@@ -40,7 +40,7 @@ Future<void> initFirsCol(var sheetName) async {
 
   var firstColumn = ['Họ và Tên'];
 
-  await _databaseService.findAllEmployees().then((employees) {
+  await _databaseService.findAllEmployees(0).then((employees) {
 
     for (var employee in employees) {
       firstColumn.add(employee.name);

@@ -1,6 +1,3 @@
-import 'dart:developer';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -33,7 +30,7 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
       NumberFormat.decimalPattern('vi').format(int.parse(s));
 
   Future<List<Employee>> _getEmployee() async {
-    return await _databaseService.findAllEmployees();
+    return await _databaseService.findAllEmployees(0);
   }
 
   Future<List<ChiTietKyCong>> _getChiTietKyCongByDateTime() async {
@@ -44,24 +41,10 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
   void initState() {
     super.initState();
     print("INIT STATE: " + widget.dateTime.toString());
-    // print(isSameDay(widget.dateTime));
   }
-
-  // bool isSameDay(DateTime dateTime) {
-  //   var dateNow = DateTime.now();
-  //   if (dateNow.day == dateTime.day &&
-  //       dateNow.month == dateTime.month &&
-  //       dateNow.year == dateTime.year) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
 
   @override
   Widget build(BuildContext context) {
-    // if (isLoaded == false) {
-    //
-    // }
     _getChiTietKyCongByDateTime().then((value) {
       soNVLamCaNgay = 0;
       soNVLamBuoiSang = 0;

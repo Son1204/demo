@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:test123/common_widgets/employee_builder.dart';
 import 'package:test123/common_widgets/employee_wage_builder.dart';
 import 'package:test123/models/employee.dart';
 import 'package:test123/pages/employee_form_pay_page.dart';
@@ -51,6 +53,20 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
     print("(_onDeleteEmployee)employeeId: " + widget.employee.id.toString());
     widget.employee.removed = 1;
     _databaseService.updateEmployee(widget.employee);
+
+    Log log = Log(
+      day: DateTime.now().day,
+      month: DateTime.now().month,
+      descriptionOfUser: "",
+      soTien: 0,
+      year: DateTime.now().year,
+      description: "Nghỉ việc",
+      date: DateFormat('yyyyMMdd').format(DateTime.now()),
+      dataJson: json.encode(widget.employee),
+      employeeId: widget.employee!.id!,
+      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
+    );
+    _databaseService.insertLog(log);
 
     Navigator.pop(context);
   }
@@ -828,7 +844,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                   ),
                 ),
                 const SizedBox(height: 10,),
-                TextButton(
+                widget.employee.removed == 0 ? TextButton(
                   onPressed: () {
                     _onDeleteEmployee();
                   },
@@ -846,6 +862,47 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                     ),
                     child: const Text(
                       'Nghỉ việc',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13.0,
+                      ),
+                    ),
+                  ),
+                ) : TextButton(
+                  onPressed: () {
+                    widget.employee.removed = 0;
+                    _databaseService.updateEmployee(widget.employee);
+
+                    Log log = Log(
+                      day: DateTime.now().day,
+                      month: DateTime.now().month,
+                      descriptionOfUser: "",
+                      soTien: 0,
+                      year: DateTime.now().year,
+                      description: "Đi làm lại",
+                      date: DateFormat('yyyyMMdd').format(DateTime.now()),
+                      dataJson: json.encode(widget.employee),
+                      employeeId: widget.employee!.id!,
+                      dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
+                    );
+                    _databaseService.insertLog(log);
+
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    margin: EdgeInsets.zero,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blue.shade100),
+                      color: Colors.white,
+                      borderRadius: const BorderRadius.all(Radius.circular(3)),
+                    ),
+                    // color: Colors.green,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 15,
+                    ),
+                    child: const Text(
+                      'Đi làm lại',
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 13.0,

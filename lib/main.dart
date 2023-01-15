@@ -6,9 +6,9 @@ import 'package:test123/models/google_sheet_config.dart';
 
 
 import 'common_widgets/employee_builder.dart';
+import 'common_widgets/employee_builder_deactive.dart';
 import 'common_widgets/employee_in_day_builder.dart';
 
-import 'pages/table_view_page.dart';
 import 'services/database_service.dart';
 import 'ultil/common.dart';
 
@@ -79,7 +79,7 @@ class _MyNevBarState extends State<MyNevBar> {
   List listOfColors = [
     const CalendarScreen(),
     const EmployeeBuilder(),
-    const SimpleTablePage(),
+    const EmployeeBuilderDeActive(),
   ];
 
   @override

@@ -285,10 +285,10 @@ class DatabaseService {
     );
   }
 
-  Future<List<Employee>> findAllEmployees() async {
+  Future<List<Employee>> findAllEmployees(int isRemove) async {
     final db = await _databaseService.database;
 
-    final List<Map<String, dynamic>> maps = await db.query('employee', where: 'removed = 0');
+    final List<Map<String, dynamic>> maps = await db.query('employee', where: 'removed = '+isRemove.toString());
 
     return List.generate(maps.length, (index) => Employee.fromMap(maps[index]));
   }
