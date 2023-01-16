@@ -7,6 +7,8 @@ import 'package:test123/common_widgets/employee_builder.dart';
 import 'package:test123/common_widgets/employee_wage_builder.dart';
 import 'package:test123/models/employee.dart';
 import 'package:test123/pages/employee_form_pay_page.dart';
+import 'package:test123/pages/log_page_bonus.dart';
+import 'package:test123/pages/log_page_pay.dart';
 
 import '../models/log.dart';
 import '../pages/employee_form_bonus_page.dart';
@@ -63,7 +65,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
       description: "Nghỉ việc",
       date: DateFormat('yyyyMMdd').format(DateTime.now()),
       dataJson: json.encode(widget.employee),
-      employeeId: widget.employee!.id!,
+      employeeId: widget.employee.id!,
       dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
     );
     _databaseService.insertLog(log);
@@ -192,7 +194,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Text(
                           _formatNumber(
                               widget.employee.chuaThanhToan.toString()) +
-                              ' đ',
+                              'đ',
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.redAccent,
@@ -239,7 +241,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Text(
                           _formatNumber(
                               (widget.employee.chuaThanhToan * -1).toString()) +
-                              ' đ',
+                              'đ',
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.redAccent,
@@ -286,7 +288,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                         child: Text(
                           _formatNumber(
                                   widget.employee.daThanhToan.toString()) +
-                              ' đ',
+                              'đ',
                           style: const TextStyle(
                               fontSize: 18, color: Colors.green),
                         ),
@@ -316,7 +318,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                       TextButton(
                         onPressed: () {},
                         child: Text(
-                          _formatNumber(widget.employee.wage.toString()) + ' đ',
+                          _formatNumber(widget.employee.wage.toString()) + 'đ',
                           style: const TextStyle(
                             fontSize: 18,
                           ),
@@ -614,7 +616,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                               ),
                             ),
                             Text(
-                              _formatNumber(luongThang.toString()) + ' đ',
+                              _formatNumber(luongThang.toString()) + 'đ',
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -711,14 +713,29 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              _formatNumber(
-                                      soTienDaThanhToanTrongThang.toString()) +
-                                  ' đ',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                            GestureDetector(
+                              onTap: ( ) {
+                                Navigator.of(context)
+                                    .push(
+                                  MaterialPageRoute(
+                                    builder: (_) => LogPagePay(
+                                      employee: widget.employee,
+                                      selectedDate: widget.selectedDate,
+                                    ),
+                                    fullscreenDialog: true,
+                                  ),
+                                )
+                                    .then((_) => setState(() {}));
+                              },
+                              child: Text(
+                                _formatNumber(
+                                        soTienDaThanhToanTrongThang.toString()) +
+                                    'đ',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green,
+                                ),
                               ),
                             ),
                           ],
@@ -762,12 +779,27 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            Text(
-                              _formatNumber(soTienThuongPhuCap.toString()) + ' đ',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.deepOrangeAccent,
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context)
+                                    .push(
+                                  MaterialPageRoute(
+                                    builder: (_) => LogPageBonus(
+                                      employee: widget.employee,
+                                      selectedDate: widget.selectedDate,
+                                    ),
+                                    fullscreenDialog: true,
+                                  ),
+                                )
+                                    .then((_) => setState(() {}));
+                              },
+                              child: Text(
+                                _formatNumber(soTienThuongPhuCap.toString()) + 'đ',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.deepOrangeAccent,
+                                ),
                               ),
                             ),
                           ],
@@ -882,7 +914,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                       description: "Đi làm lại",
                       date: DateFormat('yyyyMMdd').format(DateTime.now()),
                       dataJson: json.encode(widget.employee),
-                      employeeId: widget.employee!.id!,
+                      employeeId: widget.employee.id!,
                       dateTime: DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()),
                     );
                     _databaseService.insertLog(log);

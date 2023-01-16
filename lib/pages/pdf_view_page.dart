@@ -241,21 +241,22 @@ class _PdfViewPage extends State<PdfViewPage> {
             }
 
             await _databaseService.findUpLevelByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
+              if(values.isNotEmpty) {
+                PdfLayoutResult changeWage = PdfTextElement(
+                    text: 'Điều chỉnh lương ' +
+                        DateFormat("MM/yyyy").format(widget.selectedDate)+':',
+                    font: font)
+                    .draw(
+                    page: pageBill!.page,
+                    bounds: Rect.fromLTWH(
+                        10, pageBill.bounds.bottom + 10, 0, 0))!;
 
-              PdfLayoutResult changeWage = PdfTextElement(
-                  text: 'Điều chỉnh lương ' +
-                      DateFormat("MM/yyyy").format(widget.selectedDate)+':',
-                  font: font)
-                  .draw(
-                  page: pageBill!.page,
-                  bounds: Rect.fromLTWH(
-                      10, pageBill.bounds.bottom + 10, 0, 0))!;
-
-              getUpLevel(values).draw(
-                page: changeWage.page,
-                bounds:
-                Rect.fromLTWH(0, changeWage.bounds.bottom + 10, 0, 0),
-              );
+                getUpLevel(values).draw(
+                  page: changeWage.page,
+                  bounds:
+                  Rect.fromLTWH(0, changeWage.bounds.bottom + 10, 0, 0),
+                );
+              }
             });
 
 

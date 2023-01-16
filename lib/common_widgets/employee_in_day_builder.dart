@@ -25,7 +25,6 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
   int soNVLamBuoiChieu = 0;
   int soNVNghi = 0;
   int totalWageOfDay = 0;
-  bool isLoaded = false;
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
 
@@ -63,7 +62,6 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
         totalWageOfDay += element.thuNhapThucTe;
       }
       print("CẢ NGAY SO NV: " + soNVLamCaNgay.toString());
-      isLoaded = true;
     });
     print('_EmployeeInDayBuilder');
     return FutureBuilder<List<Employee>>(
@@ -84,20 +82,22 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                     Radius.circular(5.0),
                   ),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(3),
-                          ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(3),
                         ),
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        scrollDirection: Axis.horizontal,
                         child: Row(
                           children: [
                             Text(
-                              "TỔNG LƯƠNG NGÀY " +
+                              "TỔNG LƯƠNG TRẢ NGÀY " +
                                   DateFormat('dd/MM').format(widget.dateTime) +
                                   ": ",
                               style: const TextStyle(
@@ -107,7 +107,9 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                             ),
                             const FaIcon(FontAwesomeIcons.paypal),
                             TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+
+                              },
                               child: Text(
                                 _formatNumber(totalWageOfDay.toString()) +
                                     ' VNĐ',
@@ -126,114 +128,88 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                           ],
                         ),
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
-                            ),
-                            decoration: BoxDecoration(
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 15,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            'Cả ngày: ' + soNVLamCaNgay.toString(),
+                            style: const TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 15,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            'Buổi sáng: ' + soNVLamBuoiSang.toString(),
+                            style: const TextStyle(color: Colors.green),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 10,
+                            horizontal: 15,
+                          ),
+                          decoration: BoxDecoration(
                               border: Border.all(color: Colors.black12),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              'Cả ngày: ' + soNVLamCaNgay.toString(),
-                              style: const TextStyle(color: Colors.blue),
+                              borderRadius: BorderRadius.circular(5)),
+                          child: Text(
+                            'Buổi chiều: ' + soNVLamBuoiChieu.toString(),
+                            style: const TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 10, horizontal: 15),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black12),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            'Nghỉ: ' + soNVNghi.toString(),
+                            style: const TextStyle(
+                              color: Colors.deepOrangeAccent,
                             ),
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              'Buổi sáng: ' + soNVLamBuoiSang.toString(),
-                              style: const TextStyle(color: Colors.green),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 10,
-                              horizontal: 15,
-                            ),
-                            decoration: BoxDecoration(
-                                border: Border.all(color: Colors.black12),
-                                borderRadius: BorderRadius.circular(5)),
-                            child: Text(
-                              'Buổi chiều: ' + soNVLamBuoiChieu.toString(),
-                              style: const TextStyle(color: Colors.orange),
-                            ),
-                          ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 15),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black12),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              'Nghỉ: ' + soNVNghi.toString(),
-                              style: const TextStyle(
-                                color: Colors.deepOrangeAccent,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                        ),
+                      ],
+                    ),
+                  ],
                 )),
             Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       'Danh sách nhân viên',
                       style:
                           TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-                    ),
-                    OutlinedButton(
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.blue),
-                      ),
-                      child: const Text(
-                        'Lưu',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      onPressed: () async {
-                        // isLoaded = false;
-                        setState(() {});
-                        // snapshot.data?.forEach((element) async {
-                        //   await _databaseService.updateEmployee(element);
-                        // });
-                        // Dialogs.materialDialog(
-                        //   msg: 'Are you sure ? you can\'t undo this',
-                        //   title: "Delete",
-                        //   color: Colors.white,
-                        //   context: context,
-                        //   actions: [
-                        //     TextButton(onPressed: () {}, child: Text("OK")),
-                        //   ],
-                        // );
-                      },
                     ),
                   ],
                 )),
@@ -246,9 +222,10 @@ class _EmployeeInDayBuilder extends State<EmployeeInDayBuilder> {
                     employee: employee,
                     dateTime: widget.dateTime,
                     onReload: () {
-                      setState(() {});
+                      setState(() {
+
+                      });
                     },
-                    needLoad: false,
                   );
                 },
               ),
@@ -266,16 +243,10 @@ class BuildEmployeeCard extends StatefulWidget {
     required this.employee,
     required this.onReload,
     required this.dateTime,
-    required this.needLoad,
   }) : super(key: key);
   final Function() onReload;
   final DateTime dateTime;
   final Employee employee;
-  final bool needLoad;
-  final bool isActiveBtn11 = false;
-  final bool isActiveBtn22 = false;
-  final bool isActiveBtn33 = false;
-  final bool isActiveBtn44 = false;
 
   @override
   _BuildEmployeeCard createState() => _BuildEmployeeCard();
@@ -291,11 +262,11 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
   var preDateTime = DateTime(1998, 12, 04);
 
   final DatabaseService _databaseService = DatabaseService();
-  late ChiTietKyCong _chiTietKyCong = ChiTietKyCong(
+  ChiTietKyCong _chiTietKyCong = ChiTietKyCong(
     title: "title",
     kyCongId: 0,
-    date: DateFormat('yyyyMMdd').format(widget.dateTime),
-    day: widget.dateTime.day,
+    date: DateFormat('yyyyMMdd').format(DateTime.now()),
+    day: DateTime.now().day,
     chamCongNgay: [0, 0, 0, 0],
     thuNhapThucTe: 0,
   );
@@ -356,12 +327,6 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
       widget.employee.id!,
       widget.dateTime,
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    print("INIT _BuildEmployeeCard");
   }
 
   bool isSameDay(DateTime dateTime1, DateTime dateTime2) {
@@ -461,7 +426,28 @@ class _BuildEmployeeCard extends State<BuildEmployeeCard> {
                     width: 25,
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              EmployeeDetailBuilder(employee: widget.employee, selectedDate: widget.dateTime, onReload: () {
+                                _createIfNotExistsKyCong().then((value) {
+                                  _chiTietKyCong = value;
+                                  isActiveBtn1 = _chiTietKyCong.chamCongNgay[0] == 1 ? true : false;
+                                  isActiveBtn2 = _chiTietKyCong.chamCongNgay[1] == 1 ? true : false;
+                                  isActiveBtn3 = _chiTietKyCong.chamCongNgay[2] == 1 ? true : false;
+                                  isActiveBtn4 = _chiTietKyCong.chamCongNgay[3] == 1 ? true : false;
+                                  print(value);
+                                  setState(() {});
+                                  widget.onReload();
+                                });
+                              },),
+                          fullscreenDialog: true,
+                        ),
+                      )
+                          .then((_) => setState(() {}));
+                    },
                     child: Text(
                       "Lương/Ngày: " +
                           _formatNumber(

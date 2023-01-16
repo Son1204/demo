@@ -537,6 +537,20 @@ class DatabaseService {
     return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
   }
 
+  Future<List<Bill>> findBillsByEmployeeAndDateTimeAndPage(int employeeId, DateTime dateTime, int page) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'bill ',
+        where: 'month = ? and year=? and employeeId=? ',
+        offset: page,
+        limit: 10,
+        whereArgs: [dateTime.month, dateTime.year, employeeId],
+    );
+    return List.generate(maps.length, (index) => Bill.fromMap(maps[index]));
+  }
+
   Future<List<UpLevel>> findUpLevelByEmployeeAndDateTime(int employeeId, DateTime dateTime) async {
     final db = await _databaseService.database;
 
@@ -556,6 +570,20 @@ class DatabaseService {
         'bonus ',
         where: 'month = ? and year=? and employeeId=? ',
         whereArgs: [dateTime.month, dateTime.year, employeeId]);
+    return List.generate(maps.length, (index) => Bonus.fromMap(maps[index]));
+  }
+
+  Future<List<Bonus>> findBonusByEmployeeAndDateTimeAndPage(int employeeId, DateTime dateTime, int page) async {
+    final db = await _databaseService.database;
+
+    final List<Map<String, dynamic>> maps =
+    await db.query(
+        'bonus ',
+        where: 'month = ? and year=? and employeeId=? ',
+        whereArgs: [dateTime.month, dateTime.year, employeeId],
+        offset: page,
+      limit: 10,
+    );
     return List.generate(maps.length, (index) => Bonus.fromMap(maps[index]));
   }
 

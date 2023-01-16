@@ -2,25 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:test123/models/log.dart';
+import '../models/bill.dart';
 import '../models/employee.dart';
 import '../services/database_service.dart';
 
-class LogPage extends StatefulWidget {
-  const LogPage({Key? key, this.employee}) : super(key: key);
+class LogPagePay extends StatefulWidget {
+  const LogPagePay({Key? key, this.employee, required this.selectedDate}) : super(key: key);
   final Employee? employee;
+  final DateTime selectedDate;
 
   @override
-  _LogPage createState() => _LogPage();
+  _LogPagePay createState() => _LogPagePay();
 }
 
-class _LogPage extends State<LogPage> {
+class _LogPagePay extends State<LogPagePay> {
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
 
   int page = 0;
   bool maxNumber = false;
   int count = 0;
-  List<Log> list = [];
+  List<Bill> list = [];
 
   final DatabaseService _databaseService = DatabaseService();
 
@@ -44,7 +46,7 @@ class _LogPage extends State<LogPage> {
   Future<void> load(int page1) async {
     print("(load)page: "+page1.toString());
     await _databaseService
-        .findLogsByEmployee(widget.employee!.id!, page1)
+        .findBillsByEmployeeAndDateTimeAndPage(widget.employee!.id!, widget.selectedDate , page1)
         .then((values) {
       // print(values)
       if (values.length < 10) {
@@ -71,7 +73,7 @@ class _LogPage extends State<LogPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lịch sử nhân viên: ' + widget.employee!.name),
+        title: Text('Lịch sử thanh toán: ' + widget.employee!.name),
         centerTitle: true,
       ),
       body: RefreshIndicator(
@@ -113,7 +115,7 @@ class _LogPage extends State<LogPage> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                Text('Ngày:' + list[index].dateTime.toString()),
+                                Text('Ngày:' + DateFormat("dd/MM/yyyy").format(DateTime(list[index].year, list[index].month, list[index].day))),
                               ],
                             ),
                             const SizedBox(
@@ -138,7 +140,7 @@ class _LogPage extends State<LogPage> {
                                   width: 20,
                                 ),
                                 Text(
-                                  "Ghi chú: " + list[index].descriptionOfUser,
+                                  "Ghi chú: " + list[index].description,
                                   style: const TextStyle(
                                     fontSize: 16,
                                   ),
