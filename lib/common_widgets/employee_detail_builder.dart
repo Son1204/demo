@@ -787,7 +787,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   MaterialPageRoute(
                                     builder: (_) => LogPageBonus(
                                       employee: widget.employee,
-                                      selectedDate: widget.selectedDate,
+                                      selectedDate: selectedDate,
                                     ),
                                     fullscreenDialog: true,
                                   ),
