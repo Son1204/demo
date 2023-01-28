@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test123/models/bill.dart';
+import '../common_widgets/confirm_builder.dart';
 import '../models/bonus.dart';
 import '../models/employee.dart';
 import '../models/log.dart';
@@ -52,85 +53,100 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
     var soTien = int.parse(wage);
 
 
-    if(daThanhToan) {
-      // lưu thanh toán
-      Bill bill = Bill(
-        soTien: soTien,
-        description: description == '' ? "Thưởng/Phụ cấp" : description,
-        employeeId: widget.employee!.id!,
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        date: DateFormat('yyyyMMdd').format(date),
-      );
-      _databaseService.insertBill(bill);
-
-      updateGoogleSheetAndLog(soTien.toString()+","+(description==''?'Thưởng/Phụ cấp':description), widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
-
-      Log log = Log(
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        descriptionOfUser: description,
-        soTien: soTien,
-        description: 'Thanh toán phụ cấp/thưởng',
-        date: DateFormat('yyyyMMdd').format(date),
-        dataJson: json.encode(bill),
-        employeeId: widget.employee!.id!,
-        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
-      );
-      _databaseService.insertLog(log);
-
-      Bonus bonus = Bonus(
-        soTien: soTien,
-        description: description,
-        employeeId: widget.employee!.id!,
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        date: DateFormat('yyyyMMdd').format(date),
-      );
-      _databaseService.insertBonus(bonus);
-
-      // cập nhật tổng đã thanh toán
-      widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
-
-      _databaseService.updateEmployee(widget.employee!);
-    } else {
-      updateGoogleSheetAndLog(soTien.toString()+","+(description==''?'Thưởng/Phụ cấp':description), widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
-
-      Bonus bonus = Bonus(
-        soTien: soTien,
-        description: description,
-        employeeId: widget.employee!.id!,
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        date: DateFormat('yyyyMMdd').format(date),
-      );
-
-      _databaseService.insertBonus(bonus);
-
-      Log log1 = Log(
-        day: date.day,
-        month: date.month,
-        year: date.year,
-        description: 'Phụ cấp/Thưởng',
-        descriptionOfUser: description,
-        soTien: soTien,
-        date: DateFormat('yyyyMMdd').format(date),
-        dataJson: json.encode(bonus),
-        employeeId: widget.employee!.id!,
-        dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
-      );
-      _databaseService.insertLog(log1);
-
-      widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan + soTien;
-      _databaseService.updateEmployee(widget.employee!);
+    if(soTien == 0) {
+      return;
     }
 
-    widget.onReload();
-    Navigator.pop(context);
+    if (await confirm(context,
+        title: Text('Xác nhận: phụ cấp/thưởng ' +
+            _formatNumber(widget.employee!.wage.toString()) +
+            'đ cho nhân viên: ' +
+            widget.employee!.name))) {
+      if (daThanhToan) {
+        // lưu thanh toán
+        Bill bill = Bill(
+          soTien: soTien,
+          description: description == '' ? "Thưởng/Phụ cấp" : description,
+          employeeId: widget.employee!.id!,
+          day: date.day,
+          month: date.month,
+          year: date.year,
+          date: DateFormat('yyyyMMdd').format(date),
+        );
+        _databaseService.insertBill(bill);
+
+        updateGoogleSheetAndLog(soTien.toString() + "," +
+            (description == '' ? 'Thưởng/Phụ cấp' : description),
+            widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
+
+        Log log = Log(
+          day: date.day,
+          month: date.month,
+          year: date.year,
+          descriptionOfUser: description,
+          soTien: soTien,
+          description: 'Thanh toán phụ cấp/thưởng',
+          date: DateFormat('yyyyMMdd').format(date),
+          dataJson: json.encode(bill),
+          employeeId: widget.employee!.id!,
+          dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+        );
+        _databaseService.insertLog(log);
+
+        Bonus bonus = Bonus(
+          soTien: soTien,
+          description: description,
+          employeeId: widget.employee!.id!,
+          day: date.day,
+          month: date.month,
+          year: date.year,
+          date: DateFormat('yyyyMMdd').format(date),
+        );
+        _databaseService.insertBonus(bonus);
+
+        // cập nhật tổng đã thanh toán
+        widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+
+        _databaseService.updateEmployee(widget.employee!);
+      } else {
+        updateGoogleSheetAndLog(soTien.toString() + "," +
+            (description == '' ? 'Thưởng/Phụ cấp' : description),
+            widget.employee!.id! + 2, date.day + 1, "Thuong/PhuCap");
+
+        Bonus bonus = Bonus(
+          soTien: soTien,
+          description: description,
+          employeeId: widget.employee!.id!,
+          day: date.day,
+          month: date.month,
+          year: date.year,
+          date: DateFormat('yyyyMMdd').format(date),
+        );
+
+        _databaseService.insertBonus(bonus);
+
+        Log log1 = Log(
+          day: date.day,
+          month: date.month,
+          year: date.year,
+          description: 'Phụ cấp/Thưởng',
+          descriptionOfUser: description,
+          soTien: soTien,
+          date: DateFormat('yyyyMMdd').format(date),
+          dataJson: json.encode(bonus),
+          employeeId: widget.employee!.id!,
+          dateTime: DateFormat('dd/MM/yyyy hh:mm').format(date),
+        );
+        _databaseService.insertLog(log1);
+
+        widget.employee!.chuaThanhToan =
+            widget.employee!.chuaThanhToan + soTien;
+        _databaseService.updateEmployee(widget.employee!);
+      }
+
+      widget.onReload();
+      Navigator.pop(context);
+    }
   }
 
   @override
