@@ -135,7 +135,29 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                       ),
                       Text(
                         _formatNumber(
-                                widget.employee!.chuaThanhToan.toString()) +
+                            widget.employee!.chuaThanhToan >= 0 ? widget.employee!.chuaThanhToan.toString() : "0") +
+                            ' đ',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.deepOrangeAccent,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16.0),
+                  Row(
+                    children: [
+                      const Text(
+                        'Ứng trước: ',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        _formatNumber(
+                            widget.employee!.chuaThanhToan < 0 ? (widget.employee!.chuaThanhToan * -1).toString() : "0") +
                             ' đ',
                         style: const TextStyle(
                           fontSize: 20,
