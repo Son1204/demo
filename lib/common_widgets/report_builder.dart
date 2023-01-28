@@ -182,7 +182,7 @@ String _formatNumber(String s) =>
 
 //Draws the invoice header
 PdfLayoutResult drawHeader(
-    PdfPage page, Size pageSize, PdfGrid grid, Employee employee) {
+    PdfPage page, Size pageSize, PdfGrid grid, Employee employee, DateTime dateTime) {
   final Uint8List fontData =
       File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
           .readAsBytesSync();
@@ -198,7 +198,7 @@ PdfLayoutResult drawHeader(
   final PdfFont fontHeader =
       PdfTrueTypeFont(fontDataBold, 26, style: PdfFontStyle.bold);
 
-  DateTime current = DateTime.now();
+  DateTime current = dateTime;
   DateTime lastDayCurrentMonth = DateTime.utc(
     current.year,
     current.month + 1,
@@ -223,7 +223,7 @@ PdfLayoutResult drawHeader(
 
   PdfTextElement(
           text: 'Báo cáo được tạo ngày: ' +
-              DateFormat('dd/MM/yyyy hh:mm').format(current).toString(),
+              DateFormat('dd/MM/yyyy hh:mm').format(DateTime.now()).toString(),
           font: font)
       .draw(
           page: page,

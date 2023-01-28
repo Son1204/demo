@@ -95,7 +95,11 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
       widget.employee!.chuaThanhToan = widget.employee!.chuaThanhToan - soTien;
 
       // cập nhật đã thanh toán
-      widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+      if(tatToan) {
+        widget.employee!.daThanhToan = 0;
+      }else {
+        widget.employee!.daThanhToan = widget.employee!.daThanhToan + soTien;
+      }
 
       _databaseService.updateEmployee(widget.employee!);
       Navigator.pop(context);
@@ -168,7 +172,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                     ),
                   ),
                   const SizedBox(height: 16.0),
-                  Row(
+                  widget.employee!.chuaThanhToan > 0 ? Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -191,7 +195,7 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
                         width: 20,
                       ),
                     ],
-                  ),
+                  ) : Container(),
                   SizedBox(
                     height: 45.0,
                     child: ElevatedButton(

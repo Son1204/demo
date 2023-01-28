@@ -89,6 +89,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
     // TODO: implement initState
     super.initState();
     selectedDate = widget.selectedDate;
+    month = widget.selectedDate.month;
 
     loadData();
   }
@@ -497,7 +498,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                     MaterialPageRoute(
                                       builder: (_) => PdfViewPage(
                                         employee: widget.employee,
-                                        selectedDate: widget.selectedDate,
+                                        selectedDate: selectedDate,
                                       ),
                                       fullscreenDialog: true,
                                     ),
@@ -720,7 +721,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                   MaterialPageRoute(
                                     builder: (_) => LogPagePay(
                                       employee: widget.employee,
-                                      selectedDate: widget.selectedDate,
+                                      selectedDate: selectedDate,
                                     ),
                                     fullscreenDialog: true,
                                   ),
@@ -772,7 +773,7 @@ class _EmployeeDetailBuilder extends State<EmployeeDetailBuilder> {
                                       : month.toString()) +
                                   '/' +
                                   DateFormat("yyyy")
-                                      .format(widget.selectedDate) +
+                                      .format(selectedDate) +
                                   ': ',
                               style: const TextStyle(
                                 fontSize: 16,

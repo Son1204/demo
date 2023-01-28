@@ -41,7 +41,6 @@ class _PdfViewPage extends State<PdfViewPage> {
   bool isReady = false;
   String localPath = '';
   final DatabaseService _databaseService = DatabaseService();
-  var dateTime = DateTime.now();
 
   String _formatNumber(String s) =>
       NumberFormat.decimalPattern('vi').format(int.parse(s));
@@ -85,7 +84,7 @@ class _PdfViewPage extends State<PdfViewPage> {
             final PdfGrid grid = getGrid(chiTietKyCongs);
             //Draw the header section by creating text element
             final PdfLayoutResult resultHeader =
-            drawHeader(page, pageSize, grid, widget.employee);
+            drawHeader(page, pageSize, grid, widget.employee, widget.selectedDate);
 
             final Uint8List fontData =
             File('/storage/sdcard0/Download/Roboto/Roboto-Bold.ttf')
