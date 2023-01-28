@@ -68,7 +68,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
             _formatNumber(widget.employee!.wage.toString()) +
             'đ thành ' +
             _formatNumber(luongMoi.toString()) +
-            ' cho nhân viên: ' +
+            'đ cho nhân viên: ' +
             widget.employee!.name))) {
       UpLevel upLevel = UpLevel(
         wageOld: widget.employee!.wage,
