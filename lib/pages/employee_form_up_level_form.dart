@@ -55,6 +55,10 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
     var date = DateTime(int.parse(dateChoose[2]), int.parse(dateChoose[1]), int.parse(dateChoose[0]));
     var luongMoi = int.parse(wage);
 
+    if(luongMoi == 0) {
+      return;
+    }
+
     UpLevel upLevel = UpLevel(
       wageOld: widget.employee!.wage,
       wageNew: luongMoi,
@@ -130,7 +134,7 @@ class _EmployeeFormUpLevelPage extends State<EmployeeFormUpLevelPage> {
                   Row(
                     children: [
                       const Text(
-                        'Mức lương/ngày cũ: ',
+                        'Mức lương/ngày hiện tại: ',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
