@@ -49,6 +49,10 @@ class _EmployeeFormPayPage extends State<EmployeeFormPayPage> {
     final wage = _wageController.text.replaceAll('.', '');
     var date = DateTime.now();
     var soTien = int.parse(wage);
+
+    if(soTien == 0) {
+      return;
+    }
     
     if (await confirm(context, title: Text('Đồng ý thanh toán: '+_formatNumber(soTien.toString())+'đ cho nhân viên: '+widget.employee!.name))) {
 
