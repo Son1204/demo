@@ -121,7 +121,7 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
           day: date.day,
           month: date.month,
           year: date.year,
-          daTraTien: 1,
+          daTraTien: 0,
           date: DateFormat('yyyyMMdd').format(date),
         );
 
