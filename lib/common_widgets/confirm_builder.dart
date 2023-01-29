@@ -12,7 +12,6 @@ Future<bool> confirm(
     builder: (_) => WillPopScope(
       child: AlertDialog(
         title: title,
-        content: content ?? const Text(''),
         actions: <Widget>[
           TextButton(
             child: textCancel ?? const Text('Hủy'),

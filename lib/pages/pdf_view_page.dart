@@ -164,26 +164,33 @@ class _PdfViewPage extends State<PdfViewPage> {
                     10, resultTitleTotal.bounds.bottom + 5, 0, 0))!;
 
             var totalNeedPayMoney = 0;
-            var bonuses = List<Bonus>.empty();
+            PdfLayoutResult? pageBonus = null;
             await _databaseService.findBonusByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
               for (var value in values) {
                 totalNeedPayMoney = totalNeedPayMoney + value.soTien;
-                bonuses.add(value);
+              }
+
+              if(values.isNotEmpty) {
+                  pageBonus= getBonus(values).draw(
+                    page: resultTitleTotalMonth.page,
+                    bounds:
+                    Rect.fromLTWH(0, resultTitleTotalMonth.bounds.bottom + 10, 0, 0),
+                  );
               }
             });
 
             totalNeedPayMoney = totalNeedPayMoney + luongThang;
 
             PdfLayoutResult totalNeedPay = PdfTextElement(
-                text: 'Số tiền cần phải trả(lương và phụ cấp, thưởng): ' +
-                    DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
+                text: 'Số tiền cần phải trả(lương và phụ cấp, thưởng) ' +
+                    DateFormat("MM/yyyy").format(widget.selectedDate)+': \n\t' +
                     _formatNumber(totalNeedPayMoney.toString()) +
                     'vnđ',
                 font: font)
                 .draw(
-                page: resultTitleTotalMonth.page,
+                page: pageBonus == null ? resultTitleTotalMonth.page : pageBonus!.page,
                 bounds: Rect.fromLTWH(
-                    10, resultTitleTotalMonth.bounds.bottom + 5, 0, 0))!;
+                    10, pageBonus == null ? resultTitleTotalMonth.bounds.bottom : pageBonus!.bounds.bottom + 5, 0, 0))!;
 
             PdfLayoutResult? pageBill;
 
@@ -235,19 +242,10 @@ class _PdfViewPage extends State<PdfViewPage> {
                   bounds: Rect.fromLTWH(
                       10, remain.bounds.bottom + 5, 0, 0))!;
 
-              PdfLayoutResult? pageBonus;
-              if(bonuses.isNotEmpty) {
-                pageBonus= getBonus(bonuses).draw(
-                  page: cashAdvance.page,
-                  bounds:
-                  Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
-                );
-              }
-
               pageBill = getTotal(bills).draw(
-                page: pageBonus == null ? cashAdvance.page : pageBonus.page,
+                page: cashAdvance.page,
                 bounds:
-                Rect.fromLTWH(0, pageBonus == null ? cashAdvance.bounds.bottom : pageBonus.bounds.bottom + 10, 0, 0),
+                Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
               );
             }
 

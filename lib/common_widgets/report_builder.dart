@@ -248,16 +248,13 @@ PdfGrid getBonus(List<Bonus> bonuses) {
   headerRow.cells[1].stringFormat.alignment = PdfTextAlignment.center;
   headerRow.cells[2].value = 'Nội dung';
   headerRow.cells[2].stringFormat.alignment = PdfTextAlignment.center;
-  headerRow.cells[3].value = 'Chi tiết';
-  headerRow.cells[3].stringFormat.alignment = PdfTextAlignment.center;
 
   //Add rows
   for (var element in bonuses) {
     drawRow(
         DateFormat("dd/MM/yyyy").format(DateTime(element.year, element.month, element.day)),
         _formatNumber(element.soTien.toString()),
-        element.description,
-        element.daTraTien == 1 ? 'Đã thanh toán' : 'Chưa thanh toán',
+        element.description==''?"Thưởng/Phụ cấp":element.description,
         grid,
     );
   }
@@ -440,7 +437,7 @@ void addDayWage(String i, String j, String k, PdfGrid grid) {
   row.cells[2].value = k;
 }
 
-void drawRow(String i, String j, String k, String m, PdfGrid grid) {
+void drawRow(String i, String j, String k, PdfGrid grid) {
   final PdfGridRow row = grid.rows.add();
   //Create a PDF grid
   final Uint8List fontData =
@@ -452,5 +449,4 @@ void drawRow(String i, String j, String k, String m, PdfGrid grid) {
   row.cells[0].value = i;
   row.cells[1].value = j;
   row.cells[2].value = k;
-  row.cells[3].value = m;
 }
