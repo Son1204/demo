@@ -6,6 +6,7 @@ import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:intl/intl.dart';
 import 'package:loadmore/loadmore.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:test123/models/bonus.dart';
 import 'package:test123/models/log.dart';
 import 'package:test123/models/up_level.dart';
 import '../common_widgets/report_builder.dart';
@@ -163,16 +164,18 @@ class _PdfViewPage extends State<PdfViewPage> {
                     10, resultTitleTotal.bounds.bottom + 5, 0, 0))!;
 
             var totalNeedPayMoney = 0;
+            var bonuses = List<Bonus>.empty();
             await _databaseService.findBonusByEmployeeAndDateTime(widget.employee.id!, widget.selectedDate).then((values) {
               for (var value in values) {
                 totalNeedPayMoney = totalNeedPayMoney + value.soTien;
+                bonuses.add(value);
               }
             });
 
             totalNeedPayMoney = totalNeedPayMoney + luongThang;
 
             PdfLayoutResult totalNeedPay = PdfTextElement(
-                text: 'Số tiền cần phải trả: ' +
+                text: 'Số tiền cần phải trả(lương và phụ cấp, thưởng): ' +
                     DateFormat("MM/yyyy").format(widget.selectedDate)+': ' +
                     _formatNumber(totalNeedPayMoney.toString()) +
                     'vnđ',
@@ -182,7 +185,7 @@ class _PdfViewPage extends State<PdfViewPage> {
                 bounds: Rect.fromLTWH(
                     10, resultTitleTotalMonth.bounds.bottom + 5, 0, 0))!;
 
-            PdfLayoutResult? pageBill = null;
+            PdfLayoutResult? pageBill;
 
             if(bills.isEmpty) {
               pageBill = PdfTextElement(text: 'Chưa có khoản thanh toán nào', font: fontRe).draw(
@@ -232,10 +235,19 @@ class _PdfViewPage extends State<PdfViewPage> {
                   bounds: Rect.fromLTWH(
                       10, remain.bounds.bottom + 5, 0, 0))!;
 
+              PdfLayoutResult? pageBonus;
+              if(bonuses.isNotEmpty) {
+                pageBonus= getBonus(bonuses).draw(
+                  page: cashAdvance.page,
+                  bounds:
+                  Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
+                );
+              }
+
               pageBill = getTotal(bills).draw(
-                page: cashAdvance.page,
+                page: pageBonus == null ? cashAdvance.page : pageBonus.page,
                 bounds:
-                Rect.fromLTWH(0, cashAdvance.bounds.bottom + 10, 0, 0),
+                Rect.fromLTWH(0, pageBonus == null ? cashAdvance.bounds.bottom : pageBonus.bounds.bottom + 10, 0, 0),
               );
             }
 

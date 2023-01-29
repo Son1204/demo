@@ -33,7 +33,7 @@ class DatabaseService {
     // Set the path to the database. Note: Using the `join` function from the
     // `path` package is best practice to ensure the path is correctly
     // constructed for each platform.
-    final path = join(databasePath, 'flutter_sqflite35.db');
+    final path = join(databasePath, 'flutter_sqflite36.db');
 
     // Set the version. This executes the onCreate function and provides a
     // path to perform database upgrades and downgrades.
@@ -122,6 +122,7 @@ class DatabaseService {
           'day INTEGER, '
           'month INTEGER, '
           'year INTEGER, '
+          'daTraTien INTEGER, '
           'date TEXT, '
           'description TEXT, '
           'FOREIGN KEY (employeeId) REFERENCES employee(id) ON DELETE SET NULL '

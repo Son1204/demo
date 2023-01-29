@@ -105,11 +105,12 @@ class _LogPageBonus extends State<LogPageBonus> {
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
+                                Text(
                                   "Thông báo",
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
+                                    color: list[index].daTraTien==1?Colors.blue:Colors.deepOrangeAccent,
                                   ),
                                 ),
                                 const SizedBox(
@@ -130,9 +131,10 @@ class _LogPageBonus extends State<LogPageBonus> {
                                 ),
                                 Text(
                                   list[index].description == '' ? "Thưởng/Phụ cấp" : list[index].description,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    color: list[index].daTraTien==1?Colors.blue:Colors.deepOrangeAccent
                                   ),
                                   overflow: TextOverflow.visible,
                                 ),
@@ -140,7 +142,7 @@ class _LogPageBonus extends State<LogPageBonus> {
                                   width: 20,
                                 ),
                                 Text(
-                                  "Ghi chú: " + list[index].description,
+                                  "Ghi chú: " + list[index].description + '; '+ (list[index].daTraTien == 1 ? 'Đã thanh toán' : 'Chưa thanh toán'),
                                   style: const TextStyle(
                                     fontSize: 16,
                                   ),

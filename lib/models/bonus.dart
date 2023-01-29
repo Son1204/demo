@@ -9,6 +9,7 @@ class Bonus {
   final int year;
   final String date;
   final String description;
+  final int daTraTien;
   // List<int> chamCongNgay;
 
 // Creating the setter method
@@ -22,6 +23,7 @@ class Bonus {
     required this.soTien,
     required this.description,
     required this.employeeId, required this.day, required this.month, required this.year, required this.date,
+    this.daTraTien = 0
   });
 
   // Convert a Breed into a Map. The keys must correspond to the names of the
@@ -36,6 +38,7 @@ class Bonus {
       'year': year,
       'employeeId': employeeId,
       'date': date,
+      'daTraTien': daTraTien,
       // 'chamCongNgay': json.encode(chamCongNgay)
     };
   }
@@ -51,6 +54,7 @@ class Bonus {
       year: map['year']?.toInt() ?? 0,
       employeeId: map['employeeId']?.toInt() ?? 0,
       date: map['date'],
+      daTraTien: map['daTraTien']?.toInt() ?? 0,
       // chamCongNgay: json.decode(map['chamCongNgay']).cast<int>()
     );
   }

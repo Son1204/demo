@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:flutter_file_view/flutter_file_view.dart';
 import 'package:test123/models/bill.dart';
+import 'package:test123/models/bonus.dart';
 import 'package:test123/models/employee.dart';
 import 'package:test123/models/up_level.dart';
 
@@ -167,8 +168,8 @@ PdfGrid getGrid(List<ChiTietKyCong> chiTietKyCongs) {
 PdfGrid getTotal(List<Bill> bills) {
   //Create a PDF grid
   final Uint8List fontData =
-      File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
-          .readAsBytesSync();
+  File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
+      .readAsBytesSync();
 //Create a PDF true type font object.
   final PdfFont font = PdfTrueTypeFont(fontData, 18);
 
@@ -191,9 +192,72 @@ PdfGrid getTotal(List<Bill> bills) {
   //Add rows
   for (var element in bills) {
     addDayWage(
+      DateFormat("dd/MM/yyyy").format(DateTime(element.year, element.month, element.day)),
+      _formatNumber(element.soTien.toString()),
+      element.description,
+      grid,
+    );
+  }
+
+  //Apply the table built-in style
+  //Set gird columns width
+  for (int i = 0; i < headerRow.cells.count; i++) {
+    headerRow.cells[i].style.cellPadding = PdfPaddings(
+      bottom: 5,
+      left: 5,
+      right: 5,
+      top: 5,
+    );
+  }
+  for (int i = 0; i < grid.rows.count; i++) {
+    final PdfGridRow row = grid.rows[i];
+    for (int j = 0; j < row.cells.count; j++) {
+      final PdfGridCell cell = row.cells[j];
+      cell.style.cellPadding = PdfPaddings(
+        bottom: 5,
+        left: 5,
+        right: 5,
+        top: 5,
+      );
+    }
+  }
+  return grid;
+}
+
+
+PdfGrid getBonus(List<Bonus> bonuses) {
+  //Create a PDF grid
+  final Uint8List fontData =
+      File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
+          .readAsBytesSync();
+//Create a PDF true type font object.
+  final PdfFont font = PdfTrueTypeFont(fontData, 18);
+
+  final PdfGrid grid = PdfGrid();
+  //Secify the columns count to the grid.
+  grid.columns.add(count: 3);
+  //Create the header row of the grid.
+  final PdfGridRow headerRow = grid.headers.add(1)[0];
+
+  headerRow.style.font = font;
+
+  //Set style
+  headerRow.cells[0].value = 'Ngày';
+  headerRow.cells[0].stringFormat.alignment = PdfTextAlignment.center;
+  headerRow.cells[1].value = 'Số tiền';
+  headerRow.cells[1].stringFormat.alignment = PdfTextAlignment.center;
+  headerRow.cells[2].value = 'Nội dung';
+  headerRow.cells[2].stringFormat.alignment = PdfTextAlignment.center;
+  headerRow.cells[3].value = 'Chi tiết';
+  headerRow.cells[3].stringFormat.alignment = PdfTextAlignment.center;
+
+  //Add rows
+  for (var element in bonuses) {
+    drawRow(
         DateFormat("dd/MM/yyyy").format(DateTime(element.year, element.month, element.day)),
         _formatNumber(element.soTien.toString()),
         element.description,
+        element.daTraTien == 1 ? 'Đã thanh toán' : 'Chưa thanh toán',
         grid,
     );
   }
@@ -374,4 +438,19 @@ void addDayWage(String i, String j, String k, PdfGrid grid) {
   row.cells[0].value = i;
   row.cells[1].value = j;
   row.cells[2].value = k;
+}
+
+void drawRow(String i, String j, String k, String m, PdfGrid grid) {
+  final PdfGridRow row = grid.rows.add();
+  //Create a PDF grid
+  final Uint8List fontData =
+  File('/storage/sdcard0/Download/Roboto/Roboto-Regular.ttf')
+      .readAsBytesSync();
+//Create a PDF true type font object.
+  final PdfFont font = PdfTrueTypeFont(fontData, 18);
+  row.style.font = font;
+  row.cells[0].value = i;
+  row.cells[1].value = j;
+  row.cells[2].value = k;
+  row.cells[3].value = m;
 }

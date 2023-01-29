@@ -100,6 +100,7 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
           day: date.day,
           month: date.month,
           year: date.year,
+            daTraTien: 1,
           date: DateFormat('yyyyMMdd').format(date),
         );
         _databaseService.insertBonus(bonus);
@@ -120,6 +121,7 @@ class _EmployeeFormBonusPage extends State<EmployeeFormBonusPage> {
           day: date.day,
           month: date.month,
           year: date.year,
+          daTraTien: 1,
           date: DateFormat('yyyyMMdd').format(date),
         );
 
